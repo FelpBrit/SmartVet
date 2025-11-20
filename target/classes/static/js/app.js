@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function inicializarApp() {
-    console.log('🐾 HealthPet iniciado!');
+    console.log('🐾 SmartVet iniciado!');
     criarModais();
 }
 
@@ -538,27 +538,50 @@ function criarCardVacina(v) {
 }
 
 function abrirModalNovaVacina() {
+    if (!animalAtual || !animalAtual.id) {
+        mostrarAlerta('❌ Erro: Animal não identificado', 'danger');
+        return;
+    }
+    
     document.getElementById('vacinaAnimalId').value = animalAtual.id;
     document.getElementById('formNovaVacina').reset();
     configurarDataAtual();
     
-    const modal = new bootstrap.Modal(document.getElementById('modalNovaVacina'));
-    modal.show();
+    // Fechar modal de vacinas do animal antes de abrir o modal de nova vacina
+    const modalVacinas = bootstrap.Modal.getInstance(document.getElementById('modalVacinasAnimal'));
+    if (modalVacinas) {
+        modalVacinas.hide();
+    }
+    
+    // Aguardar um pouco antes de abrir o novo modal
+    setTimeout(() => {
+        const modal = new bootstrap.Modal(document.getElementById('modalNovaVacina'));
+        modal.show();
+    }, 300);
 }
 
 async function registrarVacina(event) {
     event.preventDefault();
     
     const animalId = document.getElementById('vacinaAnimalId').value;
+    
+    // Validação
+    if (!animalId) {
+        mostrarAlerta('❌ Erro: ID do animal não encontrado', 'danger');
+        return;
+    }
+    
     const dados = {
         nome: document.getElementById('vacinaNome').value,
         dataAplicacao: document.getElementById('vacinaData').value,
         proximaDose: document.getElementById('vacinaProximaDose').value || null,
-        lote: document.getElementById('vacinaLote').value,
-        veterinario: document.getElementById('vacinaVeterinario').value,
-        observacoes: document.getElementById('vacinaObservacoes').value,
+        lote: document.getElementById('vacinaLote').value || null,
+        veterinario: document.getElementById('vacinaVeterinario').value || null,
+        observacoes: document.getElementById('vacinaObservacoes').value || null,
         completa: document.getElementById('vacinaCompleta').checked
     };
+    
+    console.log('Registrando vacina:', dados); // Para debug
     
     try {
         mostrarLoading();
@@ -571,13 +594,21 @@ async function registrarVacina(event) {
         if (response.ok) {
             mostrarAlerta('✅ Vacina registrada com sucesso!', 'success');
             bootstrap.Modal.getInstance(document.getElementById('modalNovaVacina')).hide();
-            abrirModalVacinasAnimal(animalId);
+            
+            // Aguardar antes de reabrir o modal de vacinas
+            setTimeout(() => {
+                abrirModalVacinasAnimal(animalId);
+            }, 500);
+            
             carregarEstatisticas();
         } else {
-            mostrarAlerta('❌ Erro ao registrar vacina', 'danger');
+            const erro = await response.json();
+            console.error('Erro da API:', erro);
+            mostrarAlerta('❌ Erro: ' + (erro.erro || 'Não foi possível registrar a vacina'), 'danger');
         }
     } catch (error) {
-        mostrarAlerta('❌ Erro de conexão', 'danger');
+        console.error('Erro de conexão:', error);
+        mostrarAlerta('❌ Erro de conexão com o servidor', 'danger');
     } finally {
         esconderLoading();
     }
@@ -687,6 +718,8 @@ async function carregarTodasVacinas() {
 }
 
 // ========== ESTATÍSTICAS ==========
+let estatisticasCarregadas = false;
+
 async function carregarEstatisticas() {
     try {
         const [statsResp, vencidasResp, proximasResp] = await Promise.all([
@@ -699,18 +732,22 @@ async function carregarEstatisticas() {
         const vencidas = await vencidasResp.json();
         const proximas = await proximasResp.json();
         
-        document.getElementById('totalAnimais').textContent = stats.total;
-        document.getElementById('totalCachorros').textContent = stats.cachorros;
-        document.getElementById('totalGatos').textContent = stats.gatos;
-        document.getElementById('vacinasVencidas').textContent = vencidas.length;
-        
-        // Animar números
-        animarNumero('totalAnimais', 0, stats.total);
-        animarNumero('totalCachorros', 0, stats.cachorros);
-        animarNumero('totalGatos', 0, stats.gatos);
-        animarNumero('vacinasVencidas', 0, vencidas.length);
+        // Apenas anima na primeira vez, depois atualiza direto
+        if (!estatisticasCarregadas) {
+            animarNumero('totalAnimais', 0, stats.total);
+            animarNumero('totalCachorros', 0, stats.cachorros);
+            animarNumero('totalGatos', 0, stats.gatos);
+            animarNumero('vacinasVencidas', 0, vencidas.length);
+            estatisticasCarregadas = true;
+        } else {
+            // Atualização direta sem animação
+            document.getElementById('totalAnimais').textContent = stats.total;
+            document.getElementById('totalCachorros').textContent = stats.cachorros;
+            document.getElementById('totalGatos').textContent = stats.gatos;
+            document.getElementById('vacinasVencidas').textContent = vencidas.length;
+        }
     } catch (error) {
-        console.error('Erro ao carregar estatísticas');
+        console.error('Erro ao carregar estatísticas', error);
     }
 }
 
@@ -741,7 +778,21 @@ function configurarDataAtual() {
 
 function animarNumero(elementId, inicio, fim, duracao = 1000) {
     const elemento = document.getElementById(elementId);
+    
+    // Se o número for 0 ou negativo, apenas define diretamente
+    if (fim <= 0) {
+        elemento.textContent = fim;
+        return;
+    }
+    
     const range = fim - inicio;
+    
+    // Se não houver diferença, apenas define o valor
+    if (range === 0) {
+        elemento.textContent = fim;
+        return;
+    }
+    
     const increment = fim > inicio ? 1 : -1;
     const stepTime = Math.abs(Math.floor(duracao / range));
     let current = inicio;
@@ -749,7 +800,10 @@ function animarNumero(elementId, inicio, fim, duracao = 1000) {
     const timer = setInterval(() => {
         current += increment;
         elemento.textContent = current;
-        if (current === fim) {
+        
+        // Verificação dupla para garantir que pare
+        if ((increment > 0 && current >= fim) || (increment < 0 && current <= fim)) {
+            elemento.textContent = fim;
             clearInterval(timer);
         }
     }, stepTime);
