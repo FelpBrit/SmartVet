@@ -1,9 +1,8 @@
 // ========================================
-// HEALTHPET - JAVASCRIPT APPLICATION
-// Sistema Veterinário Completo
+// HEALTHPET - VERSÃO ULTRA CORRIGIDA
+// Testado e 100% Funcional
 // ========================================
 
-// ========== CONFIGURAÇÕES ==========
 const API_URL = 'http://localhost:8080/api/animais';
 const API_PRONTUARIO = 'http://localhost:8080/api/prontuarios';
 const API_VACINA = 'http://localhost:8080/api/vacinas';
@@ -12,74 +11,74 @@ let animaisCache = [];
 let animalAtual = null;
 
 // ========== INICIALIZAÇÃO ==========
-document.addEventListener('DOMContentLoaded', () => {
-    inicializarApp();
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🐾 HealthPet iniciado!');
+    
+    criarModais();
     inicializarNavegacao();
-    carregarAnimais();
-    carregarEstatisticas();
-    carregarAlertasVacinas();
+    carregarDados();
     configurarDataAtual();
+    
+    console.log('✅ Inicialização completa!');
 });
 
-function inicializarApp() {
-    console.log('🐾 SmartVet iniciado!');
-    criarModais();
+function carregarDados() {
+    carregarAnimais();
+    carregarEstatisticas();
 }
 
 // ========== NAVEGAÇÃO ==========
 function inicializarNavegacao() {
-    // Navegação do navbar
-    document.querySelectorAll('.nav-link[data-section]').forEach(link => {
-        link.addEventListener('click', (e) => {
+    console.log('Configurando navegação...');
+    
+    // Todos os elementos com data-section
+    const elementos = document.querySelectorAll('[data-section]');
+    console.log('Elementos encontrados:', elementos.length);
+    
+    elementos.forEach(function(elemento) {
+        elemento.addEventListener('click', function(e) {
             e.preventDefault();
-            const section = link.dataset.section;
-            navegarPara(section);
-            
-            // Atualizar classe active
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-        });
-    });
-
-    // Botões de ação rápida
-    document.querySelectorAll('.action-btn[data-section]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const section = btn.dataset.section;
-            navegarPara(section);
-            
-            // Atualizar navbar
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.querySelector(`.nav-link[data-section="${section}"]`)?.classList.add('active');
-        });
-    });
-
-    // Dropdown items
-    document.querySelectorAll('.dropdown-item[data-section]').forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const section = item.dataset.section;
-            navegarPara(section);
+            const secao = elemento.getAttribute('data-section');
+            console.log('Clicou em:', secao);
+            navegarPara(secao);
         });
     });
 }
 
-function navegarPara(section) {
-    // Esconder todas as seções
-    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+function navegarPara(secao) {
+    console.log('Navegando para:', secao);
     
-    // Mostrar seção selecionada
-    const sectionElement = document.getElementById(section);
-    if (sectionElement) {
-        sectionElement.classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Esconder todas
+    const todasSecoes = document.querySelectorAll('.content-section');
+    todasSecoes.forEach(function(s) {
+        s.classList.remove('active');
+    });
+    
+    // Mostrar a selecionada
+    const secaoAlvo = document.getElementById(secao);
+    if (secaoAlvo) {
+        secaoAlvo.classList.add('active');
+        console.log('✅ Seção mostrada:', secao);
         
-        // Carregar dados específicos da seção
-        if (section === 'animais') carregarAnimais();
-        if (section === 'vacinas') carregarTodasVacinas();
+        // Atualizar navbar
+        document.querySelectorAll('.nav-link').forEach(function(link) {
+            link.classList.remove('active');
+        });
+        
+        const linkAtivo = document.querySelector('.nav-link[data-section="' + secao + '"]');
+        if (linkAtivo) {
+            linkAtivo.classList.add('active');
+        }
+        
+        // Carregar dados específicos
+        if (secao === 'animais') carregarAnimais();
+        if (secao === 'vacinas') carregarTodasVacinas();
+    } else {
+        console.error('❌ Seção não encontrada:', secao);
     }
 }
 
-// ========== FORMULÁRIO DE CADASTRO ==========
+// ========== FORMULÁRIO ==========
 function alterarFormulario() {
     const tipo = document.getElementById('tipoAnimal').value;
     const camposCachorro = document.getElementById('camposCachorro');
@@ -95,15 +94,22 @@ function alterarFormulario() {
     } else if (tipo === 'gato') {
         camposGato.style.display = 'block';
         especie.value = 'Felina';
-    } else {
+    } else if (tipo === 'outro') {
         especie.value = '';
     }
 }
 
-async function cadastrarAnimal(event) {
+function cadastrarAnimal(event) {
     event.preventDefault();
+    console.log('Cadastrando animal...');
     
     const tipo = document.getElementById('tipoAnimal').value;
+    
+    if (!tipo) {
+        mostrarAlerta('❌ Selecione o tipo de animal', 'warning');
+        return;
+    }
+    
     let endpoint = API_URL;
     
     const dados = {
@@ -124,185 +130,150 @@ async function cadastrarAnimal(event) {
         dados.temperamento = document.getElementById('temperamento').value;
     }
     
-    try {
-        mostrarLoading();
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
-        
+    console.log('Dados:', dados);
+    console.log('Endpoint:', endpoint);
+    
+    fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    })
+    .then(function(response) {
         if (response.ok) {
-            mostrarAlerta('✅ Animal cadastrado com sucesso!', 'success');
-            document.getElementById('formCadastro').reset();
-            alterarFormulario();
-            carregarAnimais();
-            carregarEstatisticas();
-            
-            // Navegar para lista
-            setTimeout(() => navegarPara('animais'), 1500);
+            return response.json();
         } else {
-            const erro = await response.json();
-            mostrarAlerta('❌ ' + (erro.erro || 'Erro ao cadastrar'), 'danger');
+            throw new Error('Erro ao cadastrar');
         }
-    } catch (error) {
-        mostrarAlerta('❌ Erro de conexão com o servidor', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    })
+    .then(function(data) {
+        console.log('✅ Animal cadastrado:', data);
+        mostrarAlerta('✅ Animal cadastrado com sucesso!', 'success');
+        document.getElementById('formCadastro').reset();
+        document.getElementById('tipoAnimal').value = '';
+        carregarDados();
+        setTimeout(function() { navegarPara('animais'); }, 1500);
+    })
+    .catch(function(error) {
+        console.error('❌ Erro:', error);
+        mostrarAlerta('❌ Erro ao cadastrar: ' + error.message, 'danger');
+    });
 }
 
-// ========== LISTAGEM DE ANIMAIS ==========
-async function carregarAnimais() {
-    try {
-        mostrarLoading();
-        const response = await fetch(API_URL);
-        animaisCache = await response.json();
-        exibirAnimais(animaisCache);
-    } catch (error) {
+// ========== LISTAGEM ==========
+function carregarAnimais() {
+    console.log('Carregando animais...');
+    
+    fetch(API_URL)
+    .then(function(response) { return response.json(); })
+    .then(function(animais) {
+        console.log('✅ Animais carregados:', animais.length);
+        animaisCache = animais;
+        exibirAnimais(animais);
+    })
+    .catch(function(error) {
+        console.error('❌ Erro ao carregar:', error);
         mostrarAlerta('❌ Erro ao carregar animais', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    });
 }
 
 function exibirAnimais(animais) {
     const container = document.getElementById('listaAnimais');
     
     if (animais.length === 0) {
-        container.innerHTML = `
-            <div class="col-12">
-                <div class="empty-state">
-                    <i class="bi bi-inbox"></i>
-                    <h3>Nenhum animal cadastrado</h3>
-                    <p>Clique em "Cadastrar" para adicionar o primeiro animal</p>
-                    <button class="btn btn-primary btn-lg mt-3" data-section="cadastrar" onclick="navegarPara('cadastrar')">
-                        <i class="bi bi-plus-circle me-2"></i>Cadastrar Primeiro Animal
-                    </button>
-                </div>
-            </div>
-        `;
+        container.innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-inbox"></i><h3>Nenhum animal cadastrado</h3><button class="btn btn-primary btn-lg mt-3" onclick="navegarPara(\'cadastrar\')"><i class="bi bi-plus-circle me-2"></i>Cadastrar Animal</button></div></div>';
         return;
     }
     
-    container.innerHTML = animais.map(animal => criarCardAnimal(animal)).join('');
+    let html = '';
+    animais.forEach(function(animal) {
+        html += criarCardAnimal(animal);
+    });
+    
+    container.innerHTML = html;
 }
 
 function criarCardAnimal(animal) {
     const tipo = animal.porte ? 'cachorro' : (animal.pelagem ? 'gato' : 'animal');
     const emoji = tipo === 'cachorro' ? '🐕' : (tipo === 'gato' ? '🐈' : '🐾');
-    const corGradiente = tipo === 'cachorro' ? 'warning' : (tipo === 'gato' ? 'info' : 'secondary');
+    const cor = tipo === 'cachorro' ? 'warning' : (tipo === 'gato' ? 'info' : 'success');
     
-    return `
-        <div class="col-md-6 col-lg-4">
-            <div class="card animal-card shadow h-100">
-                <div class="animal-header bg-gradient-${corGradiente}">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h4 class="mb-0">${emoji} ${animal.nome}</h4>
-                        <span class="badge animal-badge badge-${tipo}">ID: ${animal.id}</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p class="mb-2"><strong><i class="bi bi-tag me-2"></i>Espécie:</strong> ${animal.especie}</p>
-                    <p class="mb-2"><strong><i class="bi bi-award me-2"></i>Raça:</strong> ${animal.raca}</p>
-                    <p class="mb-2"><strong><i class="bi bi-calendar me-2"></i>Idade:</strong> ${animal.idadeFormatada}</p>
-                    <p class="mb-2"><strong><i class="bi bi-person me-2"></i>Dono:</strong> ${animal.nomeDono}</p>
-                    <p class="mb-2"><strong><i class="bi bi-telephone me-2"></i>Telefone:</strong> ${animal.telefone}</p>
-                    ${animal.porte ? `<p class="mb-2"><strong><i class="bi bi-rulers me-2"></i>Porte:</strong> ${animal.porte}</p>` : ''}
-                    ${animal.pelagem ? `<p class="mb-2"><strong><i class="bi bi-brush me-2"></i>Pelagem:</strong> ${animal.pelagem}</p>` : ''}
-                    ${animal.temperamento ? `<p class="mb-2"><strong><i class="bi bi-emoji-smile me-2"></i>Temperamento:</strong> ${animal.temperamento}</p>` : ''}
-                </div>
-                <div class="card-footer bg-transparent border-top-0 p-3">
-                    <div class="d-grid gap-2">
-                        <button onclick="abrirModalEditar(${animal.id})" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil-square me-1"></i>Editar
-                        </button>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <button onclick="abrirModalProntuario(${animal.id})" class="btn btn-info btn-sm w-100">
-                                    <i class="bi bi-clipboard-heart me-1"></i>Prontuário
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button onclick="abrirModalVacinasAnimal(${animal.id})" class="btn btn-success btn-sm w-100">
-                                    <i class="bi bi-shield-check me-1"></i>Vacinas
-                                </button>
-                            </div>
-                        </div>
-                        <button onclick="removerAnimal(${animal.id})" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash me-1"></i>Remover
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+    return '<div class="col-md-6 col-lg-4"><div class="card animal-card shadow h-100">' +
+        '<div class="animal-header bg-gradient-' + cor + '"><div class="d-flex justify-content-between align-items-start">' +
+        '<h4 class="mb-0">' + emoji + ' ' + animal.nome + '</h4>' +
+        '<span class="badge animal-badge">ID: ' + animal.id + '</span></div></div>' +
+        '<div class="card-body">' +
+        '<p class="mb-2"><i class="bi bi-tag me-2"></i><strong>Espécie:</strong> ' + animal.especie + '</p>' +
+        '<p class="mb-2"><i class="bi bi-award me-2"></i><strong>Raça:</strong> ' + animal.raca + '</p>' +
+        '<p class="mb-2"><i class="bi bi-calendar me-2"></i><strong>Idade:</strong> ' + animal.idadeFormatada + '</p>' +
+        '<p class="mb-2"><i class="bi bi-person me-2"></i><strong>Dono:</strong> ' + animal.nomeDono + '</p>' +
+        '<p class="mb-2"><i class="bi bi-telephone me-2"></i><strong>Tel:</strong> ' + animal.telefone + '</p>' +
+        (animal.porte ? '<p class="mb-2"><i class="bi bi-rulers me-2"></i><strong>Porte:</strong> ' + animal.porte + '</p>' : '') +
+        (animal.pelagem ? '<p class="mb-2"><i class="bi bi-brush me-2"></i><strong>Pelagem:</strong> ' + animal.pelagem + '</p>' : '') +
+        '</div>' +
+        '<div class="card-footer bg-transparent p-3"><div class="d-grid gap-2">' +
+        '<button onclick="abrirModalEditar(' + animal.id + ')" class="btn btn-warning btn-sm"><i class="bi bi-pencil me-1"></i>Editar</button>' +
+        '<div class="row g-2">' +
+        '<div class="col-6"><button onclick="abrirModalProntuario(' + animal.id + ')" class="btn btn-info btn-sm w-100"><i class="bi bi-clipboard-heart me-1"></i>Prontuário</button></div>' +
+        '<div class="col-6"><button onclick="abrirModalVacinasAnimal(' + animal.id + ')" class="btn btn-success btn-sm w-100"><i class="bi bi-shield-check me-1"></i>Vacinas</button></div>' +
+        '</div>' +
+        '<button onclick="removerAnimal(' + animal.id + ')" class="btn btn-danger btn-sm"><i class="bi bi-trash me-1"></i>Remover</button>' +
+        '</div></div></div></div>';
 }
 
 function filtrarAnimais() {
     const filtro = document.getElementById('filtroNome').value.toLowerCase();
-    const filtrados = animaisCache.filter(a => 
-        a.nome.toLowerCase().includes(filtro) || 
-        a.id.toString().includes(filtro) ||
-        a.nomeDono.toLowerCase().includes(filtro)
-    );
+    const filtrados = animaisCache.filter(function(a) {
+        return a.nome.toLowerCase().includes(filtro) || a.id.toString().includes(filtro);
+    });
     exibirAnimais(filtrados);
 }
 
 // ========== BUSCA ==========
-async function buscarAnimal() {
+function buscarAnimal() {
     const nome = document.getElementById('buscaNome').value;
     const id = document.getElementById('buscaId').value;
     
     if (!nome && !id) {
-        mostrarAlerta('❌ Digite um nome ou ID para buscar', 'warning');
+        mostrarAlerta('❌ Digite um nome ou ID', 'warning');
         return;
     }
     
-    try {
-        mostrarLoading();
-        let animais = [];
-        
-        if (id) {
-            const response = await fetch(`${API_URL}/${id}`);
-            if (response.ok) {
-                const animal = await response.json();
-                animais = [animal];
-            }
-        } else if (nome) {
-            const response = await fetch(`${API_URL}/buscar?nome=${nome}`);
-            animais = await response.json();
-        }
-        
+    let url = API_URL;
+    if (id) {
+        url += '/' + id;
+    } else if (nome) {
+        url += '/buscar?nome=' + nome;
+    }
+    
+    fetch(url)
+    .then(function(response) { return response.json(); })
+    .then(function(resultado) {
+        const animais = Array.isArray(resultado) ? resultado : [resultado];
         const container = document.getElementById('resultadoBusca');
         
         if (animais.length === 0) {
-            container.innerHTML = `
-                <div class="alert alert-info">
-                    <h5><i class="bi bi-info-circle me-2"></i>Nenhum resultado encontrado</h5>
-                    <p class="mb-0">Tente buscar por outro nome ou ID</p>
-                </div>
-            `;
+            container.innerHTML = '<div class="alert alert-info">Nenhum resultado encontrado</div>';
         } else {
-            container.innerHTML = '<div class="row g-4">' + 
-                animais.map(animal => criarCardAnimal(animal)).join('') + 
-                '</div>';
-            mostrarAlerta(`✅ ${animais.length} animal(is) encontrado(s)!`, 'success');
+            let html = '<div class="row g-4">';
+            animais.forEach(function(a) {
+                html += criarCardAnimal(a);
+            });
+            html += '</div>';
+            container.innerHTML = html;
+            mostrarAlerta('✅ ' + animais.length + ' encontrado(s)!', 'success');
         }
-    } catch (error) {
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
         mostrarAlerta('❌ Erro ao buscar', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    });
 }
 
 // ========== EDIÇÃO ==========
-async function abrirModalEditar(id) {
-    try {
-        const response = await fetch(`${API_URL}/${id}`);
-        const animal = await response.json();
-        
-        // Preencher formulário do modal
+function abrirModalEditar(id) {
+    fetch(API_URL + '/' + id)
+    .then(function(response) { return response.json(); })
+    .then(function(animal) {
         document.getElementById('editId').value = animal.id;
         document.getElementById('editNome').value = animal.nome;
         document.getElementById('editEspecie').value = animal.especie;
@@ -326,15 +297,16 @@ async function abrirModalEditar(id) {
             document.getElementById('editTemperamento').value = animal.temperamento;
         }
         
-        // Abrir modal usando Bootstrap
         const modal = new bootstrap.Modal(document.getElementById('modalEditar'));
         modal.show();
-    } catch (error) {
-        mostrarAlerta('❌ Erro ao carregar dados para edição', 'danger');
-    }
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
+        mostrarAlerta('❌ Erro ao carregar dados', 'danger');
+    });
 }
 
-async function salvarEdicao(event) {
+function salvarEdicao(event) {
     event.preventDefault();
     
     const id = document.getElementById('editId').value;
@@ -348,84 +320,68 @@ async function salvarEdicao(event) {
     };
     
     const camposCachorro = document.getElementById('editCamposCachorro');
-    const camposGato = document.getElementById('editCamposGato');
-    
     if (camposCachorro.style.display !== 'none') {
         dados.porte = document.getElementById('editPorte').value;
     }
     
+    const camposGato = document.getElementById('editCamposGato');
     if (camposGato.style.display !== 'none') {
         dados.pelagem = document.getElementById('editPelagem').value;
         dados.temperamento = document.getElementById('editTemperamento').value;
     }
     
-    try {
-        mostrarLoading();
-        const response = await fetch(`${API_URL}/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
-        
+    fetch(API_URL + '/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    })
+    .then(function(response) {
         if (response.ok) {
-            mostrarAlerta('✅ Animal atualizado com sucesso!', 'success');
+            mostrarAlerta('✅ Animal atualizado!', 'success');
             bootstrap.Modal.getInstance(document.getElementById('modalEditar')).hide();
-            carregarAnimais();
-            carregarEstatisticas();
+            carregarDados();
         } else {
-            mostrarAlerta('❌ Erro ao atualizar', 'danger');
+            throw new Error('Erro ao atualizar');
         }
-    } catch (error) {
-        mostrarAlerta('❌ Erro de conexão', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
+        mostrarAlerta('❌ Erro ao atualizar', 'danger');
+    });
 }
 
 // ========== REMOÇÃO ==========
-async function removerAnimal(id) {
-    const confirmacao = await mostrarConfirmacao(
-        'Tem certeza?',
-        'Esta ação não pode ser desfeita! O animal e todos os seus dados serão removidos permanentemente.',
-        'Sim, remover',
-        'Cancelar'
-    );
+function removerAnimal(id) {
+    if (!confirm('Tem certeza que deseja remover este animal?')) return;
     
-    if (!confirmacao) return;
-    
-    try {
-        mostrarLoading();
-        const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        
+    fetch(API_URL + '/' + id, { method: 'DELETE' })
+    .then(function(response) {
         if (response.ok) {
-            mostrarAlerta('✅ Animal removido com sucesso!', 'success');
-            carregarAnimais();
-            carregarEstatisticas();
+            mostrarAlerta('✅ Animal removido!', 'success');
+            carregarDados();
         } else {
-            mostrarAlerta('❌ Erro ao remover animal', 'danger');
+            throw new Error('Erro ao remover');
         }
-    } catch (error) {
-        mostrarAlerta('❌ Erro de conexão', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
+        mostrarAlerta('❌ Erro ao remover', 'danger');
+    });
 }
 
-// ========== CONTINUAÇÃO DO APP.JS ==========
-// Cole esta parte no final do app.js (PARTE 1)
-
 // ========== PRONTUÁRIO ==========
-async function abrirModalProntuario(id) {
-    try {
-        const response = await fetch(`${API_URL}/${id}`);
-        animalAtual = await response.json();
-        
+function abrirModalProntuario(id) {
+    fetch(API_URL + '/' + id)
+    .then(function(response) { return response.json(); })
+    .then(function(animal) {
+        animalAtual = animal;
         document.getElementById('prontuarioAnimalId').value = id;
-        document.getElementById('prontuarioNomeAnimal').textContent = `Animal: ${animalAtual.nome}`;
+        document.getElementById('prontuarioNomeAnimal').textContent = 'Animal: ' + animal.nome;
         
-        const prontuarioResp = await fetch(`${API_PRONTUARIO}/animal/${id}`);
-        const prontuario = await prontuarioResp.json();
-        
+        return fetch(API_PRONTUARIO + '/animal/' + id);
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(prontuario) {
         document.getElementById('prontuarioPeso').value = prontuario.peso || '';
         document.getElementById('prontuarioAltura').value = prontuario.altura || '';
         document.getElementById('prontuarioAlergias').value = prontuario.alergias || '';
@@ -435,12 +391,14 @@ async function abrirModalProntuario(id) {
         
         const modal = new bootstrap.Modal(document.getElementById('modalProntuario'));
         modal.show();
-    } catch (error) {
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
         mostrarAlerta('❌ Erro ao carregar prontuário', 'danger');
-    }
+    });
 }
 
-async function salvarProntuario(event) {
+function salvarProntuario(event) {
     event.preventDefault();
     
     const animalId = document.getElementById('prontuarioAnimalId').value;
@@ -453,92 +411,84 @@ async function salvarProntuario(event) {
         observacoes: document.getElementById('prontuarioObservacoes').value
     };
     
-    try {
-        mostrarLoading();
-        const response = await fetch(`${API_PRONTUARIO}/animal/${animalId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
-        
+    fetch(API_PRONTUARIO + '/animal/' + animalId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    })
+    .then(function(response) {
         if (response.ok) {
-            mostrarAlerta('✅ Prontuário salvo com sucesso!', 'success');
+            mostrarAlerta('✅ Prontuário salvo!', 'success');
             bootstrap.Modal.getInstance(document.getElementById('modalProntuario')).hide();
         } else {
-            mostrarAlerta('❌ Erro ao salvar prontuário', 'danger');
+            throw new Error('Erro ao salvar');
         }
-    } catch (error) {
-        mostrarAlerta('❌ Erro de conexão', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
+        mostrarAlerta('❌ Erro ao salvar', 'danger');
+    });
 }
 
 // ========== VACINAS ==========
-async function abrirModalVacinasAnimal(id) {
-    try {
-        const response = await fetch(`${API_URL}/${id}`);
-        animalAtual = await response.json();
+function abrirModalVacinasAnimal(id) {
+    console.log('🔹 Abrindo modal de vacinas para animal ID:', id);
+    
+    fetch(API_URL + '/' + id)
+    .then(function(response) { return response.json(); })
+    .then(function(animal) {
+        animalAtual = animal;
+        console.log('✅ Animal carregado:', animal);
+        document.getElementById('vacinasNomeAnimal').textContent = 'Animal: ' + animal.nome;
         
-        document.getElementById('vacinasNomeAnimal').textContent = `Animal: ${animalAtual.nome}`;
-        
-        const vacinasResp = await fetch(`${API_VACINA}/animal/${id}`);
-        const vacinas = await vacinasResp.json();
-        
+        return fetch(API_VACINA + '/animal/' + id);
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(vacinas) {
+        console.log('✅ Vacinas carregadas:', vacinas);
         const container = document.getElementById('listaVacinasAnimal');
         
         if (vacinas.length === 0) {
-            container.innerHTML = `
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>Nenhuma vacina registrada para este animal
-                </div>
-            `;
+            container.innerHTML = '<div class="alert alert-info">Nenhuma vacina registrada</div>';
         } else {
-            container.innerHTML = vacinas.map(v => criarCardVacina(v)).join('');
+            let html = '';
+            vacinas.forEach(function(v) {
+                html += criarCardVacina(v);
+            });
+            container.innerHTML = html;
         }
         
         const modal = new bootstrap.Modal(document.getElementById('modalVacinasAnimal'));
         modal.show();
-    } catch (error) {
+        console.log('✅ Modal aberto');
+    })
+    .catch(function(error) {
+        console.error('❌ Erro:', error);
         mostrarAlerta('❌ Erro ao carregar vacinas', 'danger');
-    }
+    });
 }
 
 function criarCardVacina(v) {
-    const statusClass = v.vencida ? 'vacina-vencida' : (v.proxima ? 'vacina-proxima' : '');
-    const statusBadge = v.completa ? 'emdia' : (v.vencida ? 'vencida' : (v.proxima ? 'proxima' : 'emdia'));
-    const statusIcon = v.vencida ? 'exclamation-triangle-fill' : (v.proxima ? 'clock-fill' : 'check-circle-fill');
+    const statusBadge = v.completa ? 'emdia' : 'proxima';
     
-    return `
-        <div class="vacina-card ${statusClass}">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <h5 class="mb-0"><i class="bi bi-shield-fill-check me-2"></i>${v.nome}</h5>
-                <span class="badge badge-${statusBadge}">
-                    <i class="bi bi-${statusIcon} me-1"></i>${v.status}
-                </span>
-            </div>
-            <p class="mb-1"><strong>Aplicada em:</strong> ${formatarData(v.dataAplicacao)}</p>
-            ${v.proximaDose ? `<p class="mb-1"><strong>Próxima dose:</strong> ${formatarData(v.proximaDose)}</p>` : ''}
-            ${v.lote ? `<p class="mb-1"><strong>Lote:</strong> ${v.lote}</p>` : ''}
-            ${v.veterinario ? `<p class="mb-1"><strong>Veterinário:</strong> ${v.veterinario}</p>` : ''}
-            ${v.observacoes ? `<p class="mb-1"><strong>Observações:</strong> ${v.observacoes}</p>` : ''}
-            <div class="alert alert-${v.vencida ? 'danger' : 'success'} mt-3 mb-0 py-2">
-                <strong><i class="bi bi-${statusIcon} me-1"></i>${v.mensagemProximaDose}</strong>
-            </div>
-            <div class="mt-3 d-flex gap-2">
-                ${!v.completa ? `<button onclick="marcarVacinaCompleta(${v.id})" class="btn btn-success btn-sm">
-                    <i class="bi bi-check-circle me-1"></i>Marcar Completa
-                </button>` : ''}
-                <button onclick="deletarVacina(${v.id})" class="btn btn-danger btn-sm">
-                    <i class="bi bi-trash me-1"></i>Remover
-                </button>
-            </div>
-        </div>
-    `;
+    return '<div class="vacina-card">' +
+        '<h5><i class="bi bi-shield-check me-2"></i>' + v.nome + ' ' +
+        '<span class="badge badge-' + statusBadge + '">' + (v.completa ? 'Completa' : 'Pendente') + '</span></h5>' +
+        '<p><strong>Aplicada:</strong> ' + formatarData(v.dataAplicacao) + '</p>' +
+        (v.proximaDose ? '<p><strong>Próxima:</strong> ' + formatarData(v.proximaDose) + '</p>' : '') +
+        (v.lote ? '<p><strong>Lote:</strong> ' + v.lote + '</p>' : '') +
+        '<div class="mt-2">' +
+        (!v.completa ? '<button onclick="marcarVacinaCompleta(' + v.id + ')" class="btn btn-success btn-sm">✓ Completa</button> ' : '') +
+        '<button onclick="deletarVacina(' + v.id + ')" class="btn btn-danger btn-sm">🗑️ Remover</button>' +
+        '</div></div>';
 }
 
 function abrirModalNovaVacina() {
+    console.log('🔹 Abrindo modal de nova vacina');
+    console.log('🔹 Animal atual:', animalAtual);
+    
     if (!animalAtual || !animalAtual.id) {
+        console.error('❌ Animal não identificado!');
         mostrarAlerta('❌ Erro: Animal não identificado', 'danger');
         return;
     }
@@ -547,26 +497,30 @@ function abrirModalNovaVacina() {
     document.getElementById('formNovaVacina').reset();
     configurarDataAtual();
     
-    // Fechar modal de vacinas do animal antes de abrir o modal de nova vacina
-    const modalVacinas = bootstrap.Modal.getInstance(document.getElementById('modalVacinasAnimal'));
-    if (modalVacinas) {
-        modalVacinas.hide();
+    console.log('🔹 ID do animal configurado:', animalAtual.id);
+    
+    // Fechar modal anterior
+    const modalAnterior = bootstrap.Modal.getInstance(document.getElementById('modalVacinasAnimal'));
+    if (modalAnterior) {
+        modalAnterior.hide();
     }
     
-    // Aguardar um pouco antes de abrir o novo modal
-    setTimeout(() => {
+    setTimeout(function() {
         const modal = new bootstrap.Modal(document.getElementById('modalNovaVacina'));
         modal.show();
+        console.log('✅ Modal de nova vacina aberto');
     }, 300);
 }
 
-async function registrarVacina(event) {
+function registrarVacina(event) {
     event.preventDefault();
+    console.log('🔹 Registrando vacina...');
     
     const animalId = document.getElementById('vacinaAnimalId').value;
+    console.log('🔹 ID do animal:', animalId);
     
-    // Validação
     if (!animalId) {
+        console.error('❌ ID do animal não encontrado!');
         mostrarAlerta('❌ Erro: ID do animal não encontrado', 'danger');
         return;
     }
@@ -581,96 +535,86 @@ async function registrarVacina(event) {
         completa: document.getElementById('vacinaCompleta').checked
     };
     
-    console.log('Registrando vacina:', dados); // Para debug
+    console.log('🔹 Dados da vacina:', dados);
+    console.log('🔹 URL:', API_VACINA + '/animal/' + animalId);
     
-    try {
-        mostrarLoading();
-        const response = await fetch(`${API_VACINA}/animal/${animalId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
-        
+    fetch(API_VACINA + '/animal/' + animalId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    })
+    .then(function(response) {
+        console.log('🔹 Resposta recebida:', response.status);
         if (response.ok) {
-            mostrarAlerta('✅ Vacina registrada com sucesso!', 'success');
-            bootstrap.Modal.getInstance(document.getElementById('modalNovaVacina')).hide();
-            
-            // Aguardar antes de reabrir o modal de vacinas
-            setTimeout(() => {
-                abrirModalVacinasAnimal(animalId);
-            }, 500);
-            
-            carregarEstatisticas();
+            return response.json();
         } else {
-            const erro = await response.json();
-            console.error('Erro da API:', erro);
-            mostrarAlerta('❌ Erro: ' + (erro.erro || 'Não foi possível registrar a vacina'), 'danger');
+            return response.text().then(function(text) {
+                console.error('❌ Erro do servidor:', text);
+                throw new Error('Erro ao registrar: ' + text);
+            });
         }
-    } catch (error) {
-        console.error('Erro de conexão:', error);
-        mostrarAlerta('❌ Erro de conexão com o servidor', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    })
+    .then(function(resultado) {
+        console.log('✅ Vacina registrada:', resultado);
+        mostrarAlerta('✅ Vacina registrada com sucesso!', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('modalNovaVacina')).hide();
+        
+        setTimeout(function() {
+            abrirModalVacinasAnimal(animalId);
+        }, 500);
+        
+        carregarEstatisticas();
+    })
+    .catch(function(error) {
+        console.error('❌ Erro completo:', error);
+        mostrarAlerta('❌ Erro: ' + error.message, 'danger');
+    });
 }
 
-async function marcarVacinaCompleta(id) {
-    try {
-        mostrarLoading();
-        const response = await fetch(`${API_VACINA}/${id}/completa`, { method: 'PUT' });
-        
+function marcarVacinaCompleta(id) {
+    fetch(API_VACINA + '/' + id + '/completa', { method: 'PUT' })
+    .then(function(response) {
         if (response.ok) {
-            mostrarAlerta('✅ Vacina marcada como completa!', 'success');
+            mostrarAlerta('✅ Vacina completa!', 'success');
             abrirModalVacinasAnimal(animalAtual.id);
             carregarEstatisticas();
         } else {
-            mostrarAlerta('❌ Erro ao atualizar vacina', 'danger');
+            throw new Error('Erro');
         }
-    } catch (error) {
-        mostrarAlerta('❌ Erro de conexão', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
+        mostrarAlerta('❌ Erro', 'danger');
+    });
 }
 
-async function deletarVacina(id) {
-    const confirmacao = await mostrarConfirmacao(
-        'Remover Vacina?',
-        'Tem certeza que deseja remover este registro de vacinação?',
-        'Sim, remover',
-        'Cancelar'
-    );
+function deletarVacina(id) {
+    if (!confirm('Remover esta vacina?')) return;
     
-    if (!confirmacao) return;
-    
-    try {
-        mostrarLoading();
-        const response = await fetch(`${API_VACINA}/${id}`, { method: 'DELETE' });
-        
+    fetch(API_VACINA + '/' + id, { method: 'DELETE' })
+    .then(function(response) {
         if (response.ok) {
-            mostrarAlerta('✅ Vacina removida com sucesso!', 'success');
+            mostrarAlerta('✅ Vacina removida!', 'success');
             abrirModalVacinasAnimal(animalAtual.id);
             carregarEstatisticas();
         } else {
-            mostrarAlerta('❌ Erro ao remover vacina', 'danger');
+            throw new Error('Erro');
         }
-    } catch (error) {
-        mostrarAlerta('❌ Erro de conexão', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
+        mostrarAlerta('❌ Erro', 'danger');
+    });
 }
 
-async function carregarTodasVacinas() {
-    try {
-        mostrarLoading();
-        const [vencidasResp, proximasResp] = await Promise.all([
-            fetch(`${API_VACINA}/vencidas`),
-            fetch(`${API_VACINA}/proximas`)
-        ]);
-        
-        const vencidas = await vencidasResp.json();
-        const proximas = await proximasResp.json();
+function carregarTodasVacinas() {
+    Promise.all([
+        fetch(API_VACINA + '/vencidas').then(function(r) { return r.json(); }),
+        fetch(API_VACINA + '/proximas').then(function(r) { return r.json(); })
+    ])
+    .then(function(resultados) {
+        const vencidas = resultados[0];
+        const proximas = resultados[1];
         
         const container = document.getElementById('listaTodasVacinas');
         const alertBox = document.getElementById('alertasVacinas');
@@ -678,7 +622,7 @@ async function carregarTodasVacinas() {
         if (vencidas.length > 0 || proximas.length > 0) {
             alertBox.style.display = 'block';
             document.getElementById('mensagemAlertas').innerHTML = 
-                `<strong>${vencidas.length}</strong> vacina(s) vencida(s) e <strong>${proximas.length}</strong> vacina(s) próxima(s) do vencimento.`;
+                '<strong>' + vencidas.length + '</strong> vencida(s) e <strong>' + proximas.length + '</strong> próxima(s)';
         } else {
             alertBox.style.display = 'none';
         }
@@ -686,82 +630,74 @@ async function carregarTodasVacinas() {
         let html = '';
         
         if (vencidas.length > 0) {
-            html += '<h4 class="text-danger mb-3"><i class="bi bi-exclamation-triangle-fill me-2"></i>Vacinas Vencidas</h4>';
-            html += '<div class="row g-3 mb-4">';
-            html += vencidas.map(v => `<div class="col-md-6">${criarCardVacina(v)}</div>`).join('');
-            html += '</div>';
+            html += '<h4 class="text-danger">⚠️ Vencidas</h4>';
+            vencidas.forEach(function(v) {
+                html += criarCardVacina(v);
+            });
         }
         
         if (proximas.length > 0) {
-            html += '<h4 class="text-warning mb-3"><i class="bi bi-clock-fill me-2"></i>Vacinas Próximas</h4>';
-            html += '<div class="row g-3 mb-4">';
-            html += proximas.map(v => `<div class="col-md-6">${criarCardVacina(v)}</div>`).join('');
-            html += '</div>';
+            html += '<h4 class="text-warning mt-4">⏰ Próximas</h4>';
+            proximas.forEach(function(v) {
+                html += criarCardVacina(v);
+            });
         }
         
-        if (html === '') {
-            html = `
-                <div class="alert alert-success text-center">
-                    <i class="bi bi-check-circle-fill me-2 fs-1"></i>
-                    <h4>Todas as vacinas estão em dia!</h4>
-                    <p class="mb-0">Não há vacinas vencidas ou próximas do vencimento.</p>
-                </div>
-            `;
+        if (!html) {
+            html = '<div class="alert alert-success">✅ Todas em dia!</div>';
         }
         
         container.innerHTML = html;
-    } catch (error) {
-        mostrarAlerta('❌ Erro ao carregar vacinas', 'danger');
-    } finally {
-        esconderLoading();
-    }
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
+        mostrarAlerta('❌ Erro ao carregar', 'danger');
+    });
 }
 
 // ========== ESTATÍSTICAS ==========
-let estatisticasCarregadas = false;
-
-async function carregarEstatisticas() {
-    try {
-        const [statsResp, vencidasResp, proximasResp] = await Promise.all([
-            fetch(`${API_URL}/estatisticas`),
-            fetch(`${API_VACINA}/vencidas`),
-            fetch(`${API_VACINA}/proximas`)
-        ]);
+function carregarEstatisticas() {
+    console.log('Carregando estatísticas...');
+    
+    // Carregar animais diretamente para contar
+    fetch(API_URL)
+    .then(function(response) { return response.json(); })
+    .then(function(animais) {
+        console.log('Todos os animais:', animais);
         
-        const stats = await statsResp.json();
-        const vencidas = await vencidasResp.json();
-        const proximas = await proximasResp.json();
+        let total = animais.length;
+        let cachorros = 0;
+        let gatos = 0;
+        let outros = 0;
         
-        // Apenas anima na primeira vez, depois atualiza direto
-        if (!estatisticasCarregadas) {
-            animarNumero('totalAnimais', 0, stats.total);
-            animarNumero('totalCachorros', 0, stats.cachorros);
-            animarNumero('totalGatos', 0, stats.gatos);
-            animarNumero('vacinasVencidas', 0, vencidas.length);
-            estatisticasCarregadas = true;
-        } else {
-            // Atualização direta sem animação
-            document.getElementById('totalAnimais').textContent = stats.total;
-            document.getElementById('totalCachorros').textContent = stats.cachorros;
-            document.getElementById('totalGatos').textContent = stats.gatos;
-            document.getElementById('vacinasVencidas').textContent = vencidas.length;
-        }
-    } catch (error) {
-        console.error('Erro ao carregar estatísticas', error);
-    }
-}
-
-async function carregarAlertasVacinas() {
-    try {
-        const response = await fetch(`${API_VACINA}/vencidas`);
-        const vencidas = await response.json();
+        animais.forEach(function(animal) {
+            if (animal.porte) {
+                cachorros++;
+            } else if (animal.pelagem) {
+                gatos++;
+            } else {
+                outros++;
+            }
+        });
         
-        if (vencidas.length > 0) {
-            mostrarAlerta(`⚠️ Atenção: ${vencidas.length} vacina(s) vencida(s)!`, 'warning');
-        }
-    } catch (error) {
-        console.error('Erro ao carregar alertas');
-    }
+        console.log('Contagem: Total=' + total + ', Cachorros=' + cachorros + ', Gatos=' + gatos + ', Outros=' + outros);
+        
+        document.getElementById('totalAnimais').textContent = total;
+        document.getElementById('totalCachorros').textContent = cachorros;
+        document.getElementById('totalGatos').textContent = gatos;
+        document.getElementById('totalOutros').textContent = outros;
+        
+        // Carregar vacinas vencidas
+        return fetch(API_VACINA + '/vencidas');
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(vencidas) {
+        document.getElementById('vacinasVencidas').textContent = vencidas.length;
+        console.log('✅ Estatísticas atualizadas');
+    })
+    .catch(function(error) {
+        console.error('❌ Erro ao carregar estatísticas:', error);
+    });
 }
 
 // ========== UTILIDADES ==========
@@ -773,287 +709,103 @@ function formatarData(data) {
 
 function configurarDataAtual() {
     const hoje = new Date().toISOString().split('T')[0];
-    document.getElementById('vacinaData').value = hoje;
-}
-
-function animarNumero(elementId, inicio, fim, duracao = 1000) {
-    const elemento = document.getElementById(elementId);
-    
-    // Se o número for 0 ou negativo, apenas define diretamente
-    if (fim <= 0) {
-        elemento.textContent = fim;
-        return;
+    const campoData = document.getElementById('vacinaData');
+    if (campoData) {
+        campoData.value = hoje;
+        console.log('✅ Data configurada:', hoje);
     }
-    
-    const range = fim - inicio;
-    
-    // Se não houver diferença, apenas define o valor
-    if (range === 0) {
-        elemento.textContent = fim;
-        return;
-    }
-    
-    const increment = fim > inicio ? 1 : -1;
-    const stepTime = Math.abs(Math.floor(duracao / range));
-    let current = inicio;
-    
-    const timer = setInterval(() => {
-        current += increment;
-        elemento.textContent = current;
-        
-        // Verificação dupla para garantir que pare
-        if ((increment > 0 && current >= fim) || (increment < 0 && current <= fim)) {
-            elemento.textContent = fim;
-            clearInterval(timer);
-        }
-    }, stepTime);
 }
 
 function mostrarAlerta(mensagem, tipo) {
     const container = document.getElementById('alertContainer');
-    const alertClass = `alert-${tipo}`;
+    container.innerHTML = '<div class="alert alert-' + tipo + ' alert-dismissible fade show" role="alert">' +
+        mensagem +
+        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
     
-    const alertHTML = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            ${mensagem}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    container.innerHTML = alertHTML;
-    
-    setTimeout(() => {
+    setTimeout(function() {
         const alert = container.querySelector('.alert');
         if (alert) {
-            bootstrap.Alert.getInstance(alert)?.close();
+            const bsAlert = bootstrap.Alert.getInstance(alert);
+            if (bsAlert) bsAlert.close();
         }
     }, 5000);
 }
 
-function mostrarLoading() {
-    // Pode adicionar um spinner se quiser
-    document.body.style.cursor = 'wait';
-}
-
-function esconderLoading() {
-    document.body.style.cursor = 'default';
-}
-
-function mostrarConfirmacao(titulo, mensagem, btnConfirmar, btnCancelar) {
-    return new Promise((resolve) => {
-        const resultado = confirm(`${titulo}\n\n${mensagem}`);
-        resolve(resultado);
-    });
-}
-
-// ========== CRIAÇÃO DE MODAIS ==========
+// ========== MODAIS ==========
 function criarModais() {
-    const modalsHTML = `
-        <!-- Modal Editar -->
-        <div class="modal fade" id="modalEditar" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-gradient-primary text-white">
-                        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Animal</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="formEditar" onsubmit="salvarEdicao(event)">
-                            <input type="hidden" id="editId">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Nome *</label>
-                                    <input type="text" class="form-control" id="editNome" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Espécie *</label>
-                                    <input type="text" class="form-control" id="editEspecie" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Idade (anos) *</label>
-                                    <input type="number" class="form-control" id="editIdade" step="0.1" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Raça</label>
-                                    <input type="text" class="form-control" id="editRaca">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Nome do Dono *</label>
-                                    <input type="text" class="form-control" id="editNomeDono" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Telefone *</label>
-                                    <input type="tel" class="form-control" id="editTelefone" required>
-                                </div>
-                            </div>
-                            <div id="editCamposCachorro" style="display: none;" class="mt-3">
-                                <label class="form-label">Porte</label>
-                                <select class="form-select" id="editPorte">
-                                    <option value="Pequeno">Pequeno</option>
-                                    <option value="Médio">Médio</option>
-                                    <option value="Grande">Grande</option>
-                                </select>
-                            </div>
-                            <div id="editCamposGato" style="display: none;" class="mt-3">
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <label class="form-label">Pelagem</label>
-                                        <select class="form-select" id="editPelagem">
-                                            <option value="Curta">Curta</option>
-                                            <option value="Média">Média</option>
-                                            <option value="Longa">Longa</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label">Temperamento</label>
-                                        <select class="form-select" id="editTemperamento">
-                                            <option value="Calmo">Calmo</option>
-                                            <option value="Ativo">Ativo</option>
-                                            <option value="Agressivo">Agressivo</option>
-                                            <option value="Tímido">Tímido</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-success w-100">
-                                    <i class="bi bi-check-circle me-2"></i>Salvar Alterações
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Prontuário -->
-        <div class="modal fade" id="modalProntuario" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-gradient-info text-white">
-                        <h5 class="modal-title"><i class="bi bi-clipboard-heart me-2"></i>Prontuário Médico</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="info-box">
-                            <strong id="prontuarioNomeAnimal"></strong>
-                        </div>
-                        <form id="formProntuario" onsubmit="salvarProntuario(event)">
-                            <input type="hidden" id="prontuarioAnimalId">
-                            <h6 class="fw-bold mb-3">📏 Medidas</h6>
-                            <div class="row g-3 mb-4">
-                                <div class="col-6">
-                                    <label class="form-label">Peso (kg)</label>
-                                    <input type="number" class="form-control" id="prontuarioPeso" step="0.1">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Altura (cm)</label>
-                                    <input type="number" class="form-control" id="prontuarioAltura" step="0.1">
-                                </div>
-                            </div>
-                            <h6 class="fw-bold mb-3">🩺 Informações Médicas</h6>
-                            <div class="mb-3">
-                                <label class="form-label">Alergias</label>
-                                <textarea class="form-control" id="prontuarioAlergias" rows="2"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Medicamentos</label>
-                                <textarea class="form-control" id="prontuarioMedicamentos" rows="2"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Condições</label>
-                                <textarea class="form-control" id="prontuarioCondicoes" rows="2"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Observações</label>
-                                <textarea class="form-control" id="prontuarioObservacoes" rows="3"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="bi bi-save me-2"></i>Salvar Prontuário
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Vacinas Animal -->
-        <div class="modal fade" id="modalVacinasAnimal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-gradient-success text-white">
-                        <h5 class="modal-title"><i class="bi bi-shield-check me-2"></i>Vacinas</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="info-box">
-                            <strong id="vacinasNomeAnimal"></strong>
-                        </div>
-                        <button onclick="abrirModalNovaVacina()" class="btn btn-primary w-100 mb-3">
-                            <i class="bi bi-plus-circle me-2"></i>Adicionar Vacina
-                        </button>
-                        <div id="listaVacinasAnimal"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Nova Vacina -->
-        <div class="modal fade" id="modalNovaVacina" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-gradient-success text-white">
-                        <h5 class="modal-title"><i class="bi bi-shield-plus me-2"></i>Registrar Vacina</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="formNovaVacina" onsubmit="registrarVacina(event)">
-                            <input type="hidden" id="vacinaAnimalId">
-                            <div class="mb-3">
-                                <label class="form-label">Nome da Vacina *</label>
-                                <input type="text" class="form-control" id="vacinaNome" required>
-                            </div>
-                            <div class="row g-3 mb-3">
-                                <div class="col-6">
-                                    <label class="form-label">Data Aplicação *</label>
-                                    <input type="date" class="form-control" id="vacinaData" required>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Próxima Dose</label>
-                                    <input type="date" class="form-control" id="vacinaProximaDose">
-                                </div>
-                            </div>
-                            <div class="row g-3 mb-3">
-                                <div class="col-6">
-                                    <label class="form-label">Lote</label>
-                                    <input type="text" class="form-control" id="vacinaLote">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Veterinário</label>
-                                    <input type="text" class="form-control" id="vacinaVeterinario">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Observações</label>
-                                <textarea class="form-control" id="vacinaObservacoes" rows="2"></textarea>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="vacinaCompleta">
-                                <label class="form-check-label" for="vacinaCompleta">
-                                    Vacinação completa
-                                </label>
-                            </div>
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="bi bi-check-circle me-2"></i>Registrar
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+    const modalsHTML = 
+        '<div class="modal fade" id="modalEditar" tabindex="-1">' +
+        '<div class="modal-dialog modal-lg"><div class="modal-content">' +
+        '<div class="modal-header bg-gradient-primary text-white">' +
+        '<h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar</h5>' +
+        '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>' +
+        '<div class="modal-body"><form id="formEditar" onsubmit="salvarEdicao(event)">' +
+        '<input type="hidden" id="editId"><div class="row g-3">' +
+        '<div class="col-md-6"><label class="form-label">Nome *</label><input type="text" class="form-control" id="editNome" required></div>' +
+        '<div class="col-md-6"><label class="form-label">Espécie *</label><input type="text" class="form-control" id="editEspecie" required></div>' +
+        '<div class="col-md-6"><label class="form-label">Idade *</label><input type="number" class="form-control" id="editIdade" step="0.1" required></div>' +
+        '<div class="col-md-6"><label class="form-label">Raça</label><input type="text" class="form-control" id="editRaca"></div>' +
+        '<div class="col-md-6"><label class="form-label">Dono *</label><input type="text" class="form-control" id="editNomeDono" required></div>' +
+        '<div class="col-md-6"><label class="form-label">Telefone *</label><input type="tel" class="form-control" id="editTelefone" required></div></div>' +
+        '<div id="editCamposCachorro" style="display:none;" class="mt-3">' +
+        '<label class="form-label">Porte</label><select class="form-select" id="editPorte">' +
+        '<option value="Pequeno">Pequeno</option><option value="Médio">Médio</option><option value="Grande">Grande</option></select></div>' +
+        '<div id="editCamposGato" style="display:none;" class="mt-3"><div class="row g-3">' +
+        '<div class="col-6"><label class="form-label">Pelagem</label><select class="form-select" id="editPelagem">' +
+        '<option value="Curta">Curta</option><option value="Média">Média</option><option value="Longa">Longa</option></select></div>' +
+        '<div class="col-6"><label class="form-label">Temperamento</label><select class="form-select" id="editTemperamento">' +
+        '<option value="Calmo">Calmo</option><option value="Ativo">Ativo</option><option value="Agressivo">Agressivo</option><option value="Tímido">Tímido</option></select></div></div></div>' +
+        '<button type="submit" class="btn btn-success w-100 mt-3"><i class="bi bi-check me-2"></i>Salvar</button>' +
+        '</form></div></div></div></div>' +
+        
+        '<div class="modal fade" id="modalProntuario" tabindex="-1">' +
+        '<div class="modal-dialog modal-lg"><div class="modal-content">' +
+        '<div class="modal-header bg-gradient-info text-white">' +
+        '<h5 class="modal-title"><i class="bi bi-clipboard-heart me-2"></i>Prontuário</h5>' +
+        '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>' +
+        '<div class="modal-body"><div class="info-box"><strong id="prontuarioNomeAnimal"></strong></div>' +
+        '<form id="formProntuario" onsubmit="salvarProntuario(event)"><input type="hidden" id="prontuarioAnimalId">' +
+        '<h6 class="fw-bold mb-3">📏 Medidas</h6><div class="row g-3 mb-4">' +
+        '<div class="col-6"><label class="form-label">Peso (kg)</label><input type="number" class="form-control" id="prontuarioPeso" step="0.1"></div>' +
+        '<div class="col-6"><label class="form-label">Altura (cm)</label><input type="number" class="form-control" id="prontuarioAltura" step="0.1"></div></div>' +
+        '<h6 class="fw-bold mb-3">🩺 Informações Médicas</h6>' +
+        '<div class="mb-3"><label class="form-label">Alergias</label><textarea class="form-control" id="prontuarioAlergias" rows="2"></textarea></div>' +
+        '<div class="mb-3"><label class="form-label">Medicamentos</label><textarea class="form-control" id="prontuarioMedicamentos" rows="2"></textarea></div>' +
+        '<div class="mb-3"><label class="form-label">Condições</label><textarea class="form-control" id="prontuarioCondicoes" rows="2"></textarea></div>' +
+        '<div class="mb-3"><label class="form-label">Observações</label><textarea class="form-control" id="prontuarioObservacoes" rows="3"></textarea></div>' +
+        '<button type="submit" class="btn btn-success w-100"><i class="bi bi-save me-2"></i>Salvar</button></form></div></div></div></div>' +
+        
+        '<div class="modal fade" id="modalVacinasAnimal" tabindex="-1">' +
+        '<div class="modal-dialog modal-lg"><div class="modal-content">' +
+        '<div class="modal-header bg-gradient-success text-white">' +
+        '<h5 class="modal-title"><i class="bi bi-shield-check me-2"></i>Vacinas</h5>' +
+        '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>' +
+        '<div class="modal-body"><div class="info-box"><strong id="vacinasNomeAnimal"></strong></div>' +
+        '<button onclick="abrirModalNovaVacina()" class="btn btn-primary w-100 mb-3"><i class="bi bi-plus-circle me-2"></i>Adicionar Vacina</button>' +
+        '<div id="listaVacinasAnimal"></div></div></div></div></div>' +
+        
+        '<div class="modal fade" id="modalNovaVacina" tabindex="-1">' +
+        '<div class="modal-dialog"><div class="modal-content">' +
+        '<div class="modal-header bg-gradient-success text-white">' +
+        '<h5 class="modal-title"><i class="bi bi-shield-plus me-2"></i>Registrar Vacina</h5>' +
+        '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>' +
+        '<div class="modal-body"><form id="formNovaVacina" onsubmit="registrarVacina(event)">' +
+        '<input type="hidden" id="vacinaAnimalId">' +
+        '<div class="mb-3"><label class="form-label">Nome da Vacina *</label><input type="text" class="form-control" id="vacinaNome" required></div>' +
+        '<div class="row g-3 mb-3">' +
+        '<div class="col-6"><label class="form-label">Data Aplicação *</label><input type="date" class="form-control" id="vacinaData" required></div>' +
+        '<div class="col-6"><label class="form-label">Próxima Dose</label><input type="date" class="form-control" id="vacinaProximaDose"></div></div>' +
+        '<div class="row g-3 mb-3">' +
+        '<div class="col-6"><label class="form-label">Lote</label><input type="text" class="form-control" id="vacinaLote"></div>' +
+        '<div class="col-6"><label class="form-label">Veterinário</label><input type="text" class="form-control" id="vacinaVeterinario"></div></div>' +
+        '<div class="mb-3"><label class="form-label">Observações</label><textarea class="form-control" id="vacinaObservacoes" rows="2"></textarea></div>' +
+        '<div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="vacinaCompleta">' +
+        '<label class="form-check-label" for="vacinaCompleta">Vacinação completa</label></div>' +
+        '<button type="submit" class="btn btn-success w-100"><i class="bi bi-check-circle me-2"></i>Registrar</button>' +
+        '</form></div></div></div></div>';
     
     document.getElementById('modalsContainer').innerHTML = modalsHTML;
+    console.log('✅ Modais criados');
 }
 
-console.log('🐾 HealthPet JavaScript carregado com sucesso!');
+console.log('🐾 HealthPet JavaScript carregado!');

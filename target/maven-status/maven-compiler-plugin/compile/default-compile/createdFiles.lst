@@ -1,0 +1,15 @@
+com\healthpet\veterinaria\service\ProntuarioService.class
+com\healthpet\veterinaria\VeterinariaApplication.class
+com\healthpet\veterinaria\model\Gato.class
+com\healthpet\veterinaria\service\VacinaService.class
+com\healthpet\veterinaria\model\Cachorro.class
+com\healthpet\veterinaria\controller\AnimalController.class
+com\healthpet\veterinaria\repository\AnimalRepository.class
+com\healthpet\veterinaria\controller\VacinaController.class
+com\healthpet\veterinaria\repository\VacinaRepository.class
+com\healthpet\veterinaria\model\Animal.class
+com\healthpet\veterinaria\repository\ProntuarioRepository.class
+com\healthpet\veterinaria\service\AnimalService.class
+com\healthpet\veterinaria\controller\ProntuarioController.class
+com\healthpet\veterinaria\model\Prontuario.class
+com\healthpet\veterinaria\model\Vacina.class

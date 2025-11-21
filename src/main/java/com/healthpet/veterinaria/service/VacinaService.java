@@ -128,7 +128,7 @@ public class VacinaService {
      * Busca vacinas pendentes de um animal
      */
     public List<Vacina> buscarVacinasPendentes(Long animalId) {
-        return vacinaRepository.findByAnimalIdAndCompletaFalse(animalId);
+        return vacinaRepository.findByAnimalIdAndCompleta(animalId, false);
     }
 
     /**

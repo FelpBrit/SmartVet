@@ -1,18 +1,20 @@
 package com.healthpet.veterinaria.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 /**
- * Classe Vacina - Controle de Vacinação
+ * Classe Vacina - Entidade JPA
  * 
- * Registra todas as vacinas aplicadas nos animais
- * Controla datas de aplicação e próximas doses
- * Gera alertas para vacinas vencidas
+ * Representa uma vacina aplicada em um animal.
+ * Controla datas de aplicação, próximas doses e alertas.
  * 
- * @Entity - Marca como entidade JPA
+ * Relacionamento: N:1 com Animal (um animal pode ter várias vacinas)
+ * 
  * @author Felipe Brito
  * @version 1.0
  */
@@ -25,47 +27,46 @@ public class Vacina {
     private Long id;
 
     /**
-     * Animal que recebeu a vacina
-     * ManyToOne = muitas vacinas para um animal
+     * Relacionamento com Animal (N:1)
+     * @JsonIgnore previne loop infinito na serialização JSON
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "animal_id", nullable = false)
-    @NotNull(message = "Animal é obrigatório")
+    @JsonIgnore
     private Animal animal;
 
     /**
      * Nome da vacina
-     * Exemplos: V10, Antirrábica, Giardia, etc.
+     * Ex: V8, V10, Antirrábica, Gripe Felina
      */
     @NotBlank(message = "Nome da vacina é obrigatório")
     @Column(nullable = false, length = 100)
-    private String nomeVacina;
-
-    /**
-     * Lote/Fabricante da vacina
-     */
-    @Column(length = 100)
-    private String lote;
+    private String nome;
 
     /**
      * Data de aplicação da vacina
      */
     @NotNull(message = "Data de aplicação é obrigatória")
-    @PastOrPresent(message = "Data de aplicação não pode ser futura")
-    @Column(nullable = false)
+    @Column(name = "data_aplicacao", nullable = false)
     private LocalDate dataAplicacao;
 
     /**
      * Data da próxima dose (se houver)
      */
-    @Column
+    @Column(name = "proxima_dose")
     private LocalDate proximaDose;
 
     /**
-     * Veterinário responsável pela aplicação
+     * Lote da vacina
      */
-    @Column(length = 100)
-    private String veterinarioResponsavel;
+    @Column(length = 50)
+    private String lote;
+
+    /**
+     * Nome do veterinário que aplicou
+     */
+    @Column(name = "veterinario", length = 100)
+    private String veterinario;
 
     /**
      * Observações sobre a aplicação
@@ -74,49 +75,25 @@ public class Vacina {
     private String observacoes;
 
     /**
-     * Dose aplicada (1ª dose, 2ª dose, reforço, etc.)
+     * Se a vacina já foi aplicada (todas as doses)
      */
-    @Column(length = 50)
-    private String dose;
-
-    /**
-     * Status da vacinação
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    private StatusVacina status;
-
-    /**
-     * Enum para status da vacina
-     */
-    public enum StatusVacina {
-        EM_DIA("Em dia"),
-        PROXIMA_VENCER("Próxima a vencer"),
-        VENCIDA("Vencida"),
-        AGUARDANDO_PROXIMA_DOSE("Aguardando próxima dose");
-
-        private final String descricao;
-
-        StatusVacina(String descricao) {
-            this.descricao = descricao;
-        }
-
-        public String getDescricao() {
-            return descricao;
-        }
-    }
+    @Column(nullable = false)
+    private Boolean completa = false;
 
     // ========== CONSTRUTORES ==========
 
     public Vacina() {
-        this.status = StatusVacina.EM_DIA;
     }
 
-    public Vacina(Animal animal, String nomeVacina, LocalDate dataAplicacao) {
-        this.animal = animal;
-        this.nomeVacina = nomeVacina;
+    public Vacina(String nome, LocalDate dataAplicacao) {
+        this.nome = nome;
         this.dataAplicacao = dataAplicacao;
-        this.status = StatusVacina.EM_DIA;
+    }
+
+    public Vacina(Animal animal, String nome, LocalDate dataAplicacao) {
+        this.animal = animal;
+        this.nome = nome;
+        this.dataAplicacao = dataAplicacao;
     }
 
     // ========== GETTERS E SETTERS ==========
@@ -137,20 +114,12 @@ public class Vacina {
         this.animal = animal;
     }
 
-    public String getNomeVacina() {
-        return nomeVacina;
+    public String getNome() {
+        return nome;
     }
 
-    public void setNomeVacina(String nomeVacina) {
-        this.nomeVacina = nomeVacina;
-    }
-
-    public String getLote() {
-        return lote;
-    }
-
-    public void setLote(String lote) {
-        this.lote = lote;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public LocalDate getDataAplicacao() {
@@ -169,12 +138,20 @@ public class Vacina {
         this.proximaDose = proximaDose;
     }
 
-    public String getVeterinarioResponsavel() {
-        return veterinarioResponsavel;
+    public String getLote() {
+        return lote;
     }
 
-    public void setVeterinarioResponsavel(String veterinarioResponsavel) {
-        this.veterinarioResponsavel = veterinarioResponsavel;
+    public void setLote(String lote) {
+        this.lote = lote;
+    }
+
+    public String getVeterinario() {
+        return veterinario;
+    }
+
+    public void setVeterinario(String veterinario) {
+        this.veterinario = veterinario;
     }
 
     public String getObservacoes() {
@@ -185,96 +162,104 @@ public class Vacina {
         this.observacoes = observacoes;
     }
 
-    public String getDose() {
-        return dose;
+    public Boolean getCompleta() {
+        return completa;
     }
 
-    public void setDose(String dose) {
-        this.dose = dose;
-    }
-
-    public StatusVacina getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusVacina status) {
-        this.status = status;
+    public void setCompleta(Boolean completa) {
+        this.completa = completa;
     }
 
     // ========== MÉTODOS PERSONALIZADOS ==========
 
     /**
-     * Verifica e atualiza o status da vacina baseado nas datas
+     * Verifica se a próxima dose está vencida
      */
-    public void atualizarStatus() {
-        if (proximaDose == null) {
-            this.status = StatusVacina.EM_DIA;
-            return;
+    public boolean isVencida() {
+        if (proximaDose == null || completa) {
+            return false;
         }
+        return LocalDate.now().isAfter(proximaDose);
+    }
 
+    /**
+     * Verifica se a próxima dose está próxima (dentro de 7 dias)
+     */
+    public boolean isProxima() {
+        if (proximaDose == null || completa) {
+            return false;
+        }
         LocalDate hoje = LocalDate.now();
-        long diasRestantes = ChronoUnit.DAYS.between(hoje, proximaDose);
+        return !proximaDose.isBefore(hoje) && 
+               ChronoUnit.DAYS.between(hoje, proximaDose) <= 7;
+    }
 
-        if (diasRestantes < 0) {
-            this.status = StatusVacina.VENCIDA;
-        } else if (diasRestantes <= 30) {
-            this.status = StatusVacina.PROXIMA_VENCER;
-        } else {
-            this.status = StatusVacina.AGUARDANDO_PROXIMA_DOSE;
+    /**
+     * Retorna o status da vacina
+     */
+    public String getStatus() {
+        if (completa) {
+            return "Completa";
         }
+        if (proximaDose == null) {
+            return "Aplicada";
+        }
+        if (isVencida()) {
+            return "Vencida";
+        }
+        if (isProxima()) {
+            return "Próxima";
+        }
+        return "Em dia";
     }
 
     /**
      * Calcula quantos dias faltam para a próxima dose
      */
-    public long getDiasParaProximaDose() {
-        if (proximaDose == null) {
-            return -1;
+    public Long diasAteProximaDose() {
+        if (proximaDose == null || completa) {
+            return null;
         }
         return ChronoUnit.DAYS.between(LocalDate.now(), proximaDose);
     }
 
     /**
-     * Verifica se a vacina está vencida
+     * Retorna mensagem sobre a próxima dose
      */
-    public boolean isVencida() {
-        atualizarStatus();
-        return this.status == StatusVacina.VENCIDA;
-    }
-
-    /**
-     * Verifica se a vacina está próxima de vencer (30 dias)
-     */
-    public boolean isProximaVencer() {
-        atualizarStatus();
-        return this.status == StatusVacina.PROXIMA_VENCER;
-    }
-
-    /**
-     * Retorna mensagem de alerta se necessário
-     */
-    public String getMensagemAlerta() {
-        atualizarStatus();
+    public String getMensagemProximaDose() {
+        if (completa) {
+            return "Vacinação completa";
+        }
+        if (proximaDose == null) {
+            return "Sem próxima dose agendada";
+        }
         
-        switch (this.status) {
-            case VENCIDA:
-                return "⚠️ URGENTE: Vacina vencida há " + Math.abs(getDiasParaProximaDose()) + " dias!";
-            case PROXIMA_VENCER:
-                return "⏰ ATENÇÃO: Vacina vence em " + getDiasParaProximaDose() + " dias";
-            case AGUARDANDO_PROXIMA_DOSE:
-                return "📅 Próxima dose em " + getDiasParaProximaDose() + " dias";
-            default:
-                return "✅ Vacinação em dia";
+        Long dias = diasAteProximaDose();
+        if (dias == null) {
+            return "Sem próxima dose";
+        }
+        
+        if (dias < 0) {
+            return "Atrasada há " + Math.abs(dias) + " dia(s)";
+        } else if (dias == 0) {
+            return "Vence hoje!";
+        } else if (dias == 1) {
+            return "Vence amanhã";
+        } else if (dias <= 7) {
+            return "Vence em " + dias + " dias";
+        } else {
+            return "Próxima dose: " + proximaDose;
         }
     }
 
-    // ========== MÉTODO toString() ==========
-
     @Override
     public String toString() {
-        return "Vacina: " + nomeVacina +
-                " | Aplicada em: " + dataAplicacao +
-                " | Dose: " + (dose != null ? dose : "N/A") +
-                " | Status: " + status.getDescricao();
+        return "Vacina{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", dataAplicacao=" + dataAplicacao +
+                ", proximaDose=" + proximaDose +
+                ", status=" + getStatus() +
+                '}';
     }
 }
