@@ -205,7 +205,7 @@ Página inicial com:
 ================================================================================
 
 1. Baixar ou clonar o repositório:
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+git clone https://github.com/FelpBrit/SmartVet.git
 
 2. Abrir no VS Code ou IntelliJ
 
@@ -220,7 +220,7 @@ http://localhost:8080/h2-console
 
 
 ================================================================================
-                          TROUBLESHOOTING (SOLUÇÃO DE PROBLEMAS)
+                 TROUBLESHOOTING (SOLUÇÃO DE PROBLEMAS)
 ================================================================================
 
 ❗ **CSS/JS não carregam**  
