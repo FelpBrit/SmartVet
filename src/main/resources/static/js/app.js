@@ -1,6 +1,6 @@
 // ========================================
-// HEALTHPET - VERSÃO ULTRA CORRIGIDA
-// Testado e 100% Funcional
+// SMARTVET - VERSÃO ULTRA MODERNA
+// Com Dark Mode + Animações Avançadas
 // ========================================
 
 const API_URL = 'http://localhost:8080/api/animais';
@@ -12,12 +12,15 @@ let animalAtual = null;
 
 // ========== INICIALIZAÇÃO ==========
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🐾 HealthPet iniciado!');
+    console.log('🐾 SmartVet iniciado!');
     
+    // Configurações iniciais
     criarModais();
     inicializarNavegacao();
+    inicializarDarkMode();
     carregarDados();
     configurarDataAtual();
+    iniciarAnimacoes();
     
     console.log('✅ Inicialização completa!');
 });
@@ -27,11 +30,79 @@ function carregarDados() {
     carregarEstatisticas();
 }
 
+// ========== DARK MODE ==========
+function inicializarDarkMode() {
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const darkModeStorage = localStorage.getItem('darkMode');
+    
+    // Carregar preferência salva
+    if (darkModeStorage === 'enabled') {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+    }
+    
+    // Toggle ao clicar
+    darkModeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark-mode');
+        
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('darkMode', 'enabled');
+            darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+            mostrarAlerta('🌙 Modo escuro ativado!', 'info');
+        } else {
+            localStorage.setItem('darkMode', 'disabled');
+            darkModeToggle.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+            mostrarAlerta('☀️ Modo claro ativado!', 'info');
+        }
+    });
+}
+
+// ========== ANIMAÇÕES ==========
+function iniciarAnimacoes() {
+    // Animar contadores
+    animarContadores();
+    
+    // Intersection Observer para animações ao scroll
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.stat-card, .glass-card').forEach(function(card) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'all 0.6s ease';
+        observer.observe(card);
+    });
+}
+
+function animarContadores() {
+    document.querySelectorAll('.counter').forEach(function(counter) {
+        const target = parseInt(counter.textContent);
+        let current = 0;
+        const increment = target / 50;
+        const duration = 1500;
+        
+        const timer = setInterval(function() {
+            current += increment;
+            if (current >= target) {
+                counter.textContent = target;
+                clearInterval(timer);
+            } else {
+                counter.textContent = Math.floor(current);
+            }
+        }, duration / 50);
+    });
+}
+
 // ========== NAVEGAÇÃO ==========
 function inicializarNavegacao() {
     console.log('Configurando navegação...');
     
-    // Todos os elementos com data-section
     const elementos = document.querySelectorAll('[data-section]');
     console.log('Elementos encontrados:', elementos.length);
     
@@ -69,6 +140,9 @@ function navegarPara(secao) {
         if (linkAtivo) {
             linkAtivo.classList.add('active');
         }
+        
+        // Scroll suave para o topo
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         
         // Carregar dados específicos
         if (secao === 'animais') carregarAnimais();
@@ -180,27 +254,35 @@ function exibirAnimais(animais) {
     const container = document.getElementById('listaAnimais');
     
     if (animais.length === 0) {
-        container.innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-inbox"></i><h3>Nenhum animal cadastrado</h3><button class="btn btn-primary btn-lg mt-3" onclick="navegarPara(\'cadastrar\')"><i class="bi bi-plus-circle me-2"></i>Cadastrar Animal</button></div></div>';
+        container.innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-inbox"></i><h3>Nenhum animal cadastrado</h3><button class="btn btn-glass btn-primary-glass mt-3" onclick="navegarPara(\'cadastrar\')"><i class="bi bi-plus-circle me-2"></i>Cadastrar Animal</button></div></div>';
         return;
     }
     
     let html = '';
-    animais.forEach(function(animal) {
-        html += criarCardAnimal(animal);
+    animais.forEach(function(animal, index) {
+        html += criarCardAnimal(animal, index);
     });
     
     container.innerHTML = html;
+    
+    // Animar cards com delay
+    setTimeout(function() {
+        document.querySelectorAll('.animal-card').forEach(function(card, index) {
+            card.style.animation = 'fadeInUp 0.5s ease ' + (index * 0.1) + 's forwards';
+            card.style.opacity = '0';
+        });
+    }, 100);
 }
 
-function criarCardAnimal(animal) {
+function criarCardAnimal(animal, index) {
     const tipo = animal.porte ? 'cachorro' : (animal.pelagem ? 'gato' : 'animal');
     const emoji = tipo === 'cachorro' ? '🐕' : (tipo === 'gato' ? '🐈' : '🐾');
     const cor = tipo === 'cachorro' ? 'warning' : (tipo === 'gato' ? 'info' : 'success');
     
-    return '<div class="col-md-6 col-lg-4"><div class="card animal-card shadow h-100">' +
+    return '<div class="col-md-6 col-lg-4"><div class="card animal-card glass-card h-100">' +
         '<div class="animal-header bg-gradient-' + cor + '"><div class="d-flex justify-content-between align-items-start">' +
-        '<h4 class="mb-0">' + emoji + ' ' + animal.nome + '</h4>' +
-        '<span class="badge animal-badge">ID: ' + animal.id + '</span></div></div>' +
+        '<h4 class="mb-0 text-white">' + emoji + ' ' + animal.nome + '</h4>' +
+        '<span class="badge bg-light text-dark">ID: ' + animal.id + '</span></div></div>' +
         '<div class="card-body">' +
         '<p class="mb-2"><i class="bi bi-tag me-2"></i><strong>Espécie:</strong> ' + animal.especie + '</p>' +
         '<p class="mb-2"><i class="bi bi-award me-2"></i><strong>Raça:</strong> ' + animal.raca + '</p>' +
@@ -252,7 +334,7 @@ function buscarAnimal() {
         const container = document.getElementById('resultadoBusca');
         
         if (animais.length === 0) {
-            container.innerHTML = '<div class="alert alert-info">Nenhum resultado encontrado</div>';
+            container.innerHTML = '<div class="alert alert-info glass-alert">Nenhum resultado encontrado</div>';
         } else {
             let html = '<div class="row g-4">';
             animais.forEach(function(a) {
@@ -449,7 +531,7 @@ function abrirModalVacinasAnimal(id) {
         const container = document.getElementById('listaVacinasAnimal');
         
         if (vacinas.length === 0) {
-            container.innerHTML = '<div class="alert alert-info">Nenhuma vacina registrada</div>';
+            container.innerHTML = '<div class="alert alert-info glass-alert">Nenhuma vacina registrada</div>';
         } else {
             let html = '';
             vacinas.forEach(function(v) {
@@ -499,7 +581,6 @@ function abrirModalNovaVacina() {
     
     console.log('🔹 ID do animal configurado:', animalAtual.id);
     
-    // Fechar modal anterior
     const modalAnterior = bootstrap.Modal.getInstance(document.getElementById('modalVacinasAnimal'));
     if (modalAnterior) {
         modalAnterior.hide();
@@ -644,7 +725,7 @@ function carregarTodasVacinas() {
         }
         
         if (!html) {
-            html = '<div class="alert alert-success">✅ Todas em dia!</div>';
+            html = '<div class="alert alert-success glass-alert">✅ Todas em dia!</div>';
         }
         
         container.innerHTML = html;
@@ -659,7 +740,6 @@ function carregarTodasVacinas() {
 function carregarEstatisticas() {
     console.log('Carregando estatísticas...');
     
-    // Carregar animais diretamente para contar
     fetch(API_URL)
     .then(function(response) { return response.json(); })
     .then(function(animais) {
@@ -682,22 +762,39 @@ function carregarEstatisticas() {
         
         console.log('Contagem: Total=' + total + ', Cachorros=' + cachorros + ', Gatos=' + gatos + ', Outros=' + outros);
         
-        document.getElementById('totalAnimais').textContent = total;
-        document.getElementById('totalCachorros').textContent = cachorros;
-        document.getElementById('totalGatos').textContent = gatos;
-        document.getElementById('totalOutros').textContent = outros;
+        // Animar contadores
+        animarContador('totalAnimais', total);
+        animarContador('totalCachorros', cachorros);
+        animarContador('totalGatos', gatos);
+        animarContador('totalOutros', outros);
         
-        // Carregar vacinas vencidas
         return fetch(API_VACINA + '/vencidas');
     })
     .then(function(response) { return response.json(); })
     .then(function(vencidas) {
-        document.getElementById('vacinasVencidas').textContent = vencidas.length;
+        animarContador('vacinasVencidas', vencidas.length);
         console.log('✅ Estatísticas atualizadas');
     })
     .catch(function(error) {
         console.error('❌ Erro ao carregar estatísticas:', error);
     });
+}
+
+function animarContador(elementId, valorFinal) {
+    const elemento = document.getElementById(elementId);
+    let valorAtual = 0;
+    const incremento = valorFinal / 30;
+    const duracao = 1000;
+    
+    const timer = setInterval(function() {
+        valorAtual += incremento;
+        if (valorAtual >= valorFinal) {
+            elemento.textContent = valorFinal;
+            clearInterval(timer);
+        } else {
+            elemento.textContent = Math.floor(valorAtual);
+        }
+    }, duracao / 30);
 }
 
 // ========== UTILIDADES ==========
@@ -718,94 +815,113 @@ function configurarDataAtual() {
 
 function mostrarAlerta(mensagem, tipo) {
     const container = document.getElementById('alertContainer');
-    container.innerHTML = '<div class="alert alert-' + tipo + ' alert-dismissible fade show" role="alert">' +
+    container.innerHTML = '<div class="alert alert-' + tipo + ' glass-alert alert-dismissible fade show" role="alert">' +
         mensagem +
         '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+    
+    // Animação de entrada
+    const alerta = container.querySelector('.alert');
+    alerta.style.animation = 'slideDown 0.5s ease';
     
     setTimeout(function() {
         const alert = container.querySelector('.alert');
         if (alert) {
-            const bsAlert = bootstrap.Alert.getInstance(alert);
-            if (bsAlert) bsAlert.close();
+            alert.style.animation = 'slideUp 0.5s ease';
+            setTimeout(function() {
+                const bsAlert = bootstrap.Alert.getInstance(alert);
+                if (bsAlert) bsAlert.close();
+            }, 500);
         }
-    }, 5000);
+    }, 4000);
 }
 
 // ========== MODAIS ==========
 function criarModais() {
     const modalsHTML = 
+        '<!-- Modal Editar -->' +
         '<div class="modal fade" id="modalEditar" tabindex="-1">' +
         '<div class="modal-dialog modal-lg"><div class="modal-content">' +
         '<div class="modal-header bg-gradient-primary text-white">' +
-        '<h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar</h5>' +
+        '<h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar Animal</h5>' +
         '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>' +
         '<div class="modal-body"><form id="formEditar" onsubmit="salvarEdicao(event)">' +
-        '<input type="hidden" id="editId"><div class="row g-3">' +
-        '<div class="col-md-6"><label class="form-label">Nome *</label><input type="text" class="form-control" id="editNome" required></div>' +
-        '<div class="col-md-6"><label class="form-label">Espécie *</label><input type="text" class="form-control" id="editEspecie" required></div>' +
-        '<div class="col-md-6"><label class="form-label">Idade *</label><input type="number" class="form-control" id="editIdade" step="0.1" required></div>' +
-        '<div class="col-md-6"><label class="form-label">Raça</label><input type="text" class="form-control" id="editRaca"></div>' +
-        '<div class="col-md-6"><label class="form-label">Dono *</label><input type="text" class="form-control" id="editNomeDono" required></div>' +
-        '<div class="col-md-6"><label class="form-label">Telefone *</label><input type="tel" class="form-control" id="editTelefone" required></div></div>' +
-        '<div id="editCamposCachorro" style="display:none;" class="mt-3">' +
-        '<label class="form-label">Porte</label><select class="form-select" id="editPorte">' +
+        '<input type="hidden" id="editId">' +
+        '<div class="row g-3 mb-3">' +
+        '<div class="col-md-6"><label class="form-label">Nome *</label><input type="text" class="form-control-glass" id="editNome" required></div>' +
+        '<div class="col-md-6"><label class="form-label">Espécie *</label><input type="text" class="form-control-glass" id="editEspecie" required></div>' +
+        '</div>' +
+        '<div class="row g-3 mb-3">' +
+        '<div class="col-md-6"><label class="form-label">Idade *</label><input type="number" class="form-control-glass" id="editIdade" step="0.1" required></div>' +
+        '<div class="col-md-6"><label class="form-label">Raça</label><input type="text" class="form-control-glass" id="editRaca"></div>' +
+        '</div>' +
+        '<div class="row g-3 mb-3">' +
+        '<div class="col-md-6"><label class="form-label">Dono *</label><input type="text" class="form-control-glass" id="editNomeDono" required></div>' +
+        '<div class="col-md-6"><label class="form-label">Telefone *</label><input type="tel" class="form-control-glass" id="editTelefone" required></div>' +
+        '</div>' +
+        '<div id="editCamposCachorro" style="display:none;" class="row g-3 mb-3">' +
+        '<div class="col-md-6"><label class="form-label">Porte</label><select class="form-select-glass" id="editPorte">' +
         '<option value="Pequeno">Pequeno</option><option value="Médio">Médio</option><option value="Grande">Grande</option></select></div>' +
-        '<div id="editCamposGato" style="display:none;" class="mt-3"><div class="row g-3">' +
-        '<div class="col-6"><label class="form-label">Pelagem</label><select class="form-select" id="editPelagem">' +
+        '</div>' +
+        '<div id="editCamposGato" style="display:none;" class="row g-3 mb-3">' +
+        '<div class="col-md-6"><label class="form-label">Pelagem</label><select class="form-select-glass" id="editPelagem">' +
         '<option value="Curta">Curta</option><option value="Média">Média</option><option value="Longa">Longa</option></select></div>' +
-        '<div class="col-6"><label class="form-label">Temperamento</label><select class="form-select" id="editTemperamento">' +
-        '<option value="Calmo">Calmo</option><option value="Ativo">Ativo</option><option value="Agressivo">Agressivo</option><option value="Tímido">Tímido</option></select></div></div></div>' +
-        '<button type="submit" class="btn btn-success w-100 mt-3"><i class="bi bi-check me-2"></i>Salvar</button>' +
+        '<div class="col-md-6"><label class="form-label">Temperamento</label><select class="form-select-glass" id="editTemperamento">' +
+        '<option value="Calmo">Calmo</option><option value="Ativo">Ativo</option><option value="Agressivo">Agressivo</option><option value="Tímido">Tímido</option></select></div>' +
+        '</div>' +
+        '<button type="submit" class="btn btn-glass btn-success-glass w-100 mt-3"><i class="bi bi-check me-2"></i>Salvar Alterações</button>' +
         '</form></div></div></div></div>' +
         
+        '<!-- Modal Prontuário -->' +
         '<div class="modal fade" id="modalProntuario" tabindex="-1">' +
         '<div class="modal-dialog modal-lg"><div class="modal-content">' +
         '<div class="modal-header bg-gradient-info text-white">' +
-        '<h5 class="modal-title"><i class="bi bi-clipboard-heart me-2"></i>Prontuário</h5>' +
+        '<h5 class="modal-title"><i class="bi bi-clipboard-heart me-2"></i>Prontuário Médico</h5>' +
         '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>' +
-        '<div class="modal-body"><div class="info-box"><strong id="prontuarioNomeAnimal"></strong></div>' +
+        '<div class="modal-body"><div class="alert alert-info glass-alert"><strong id="prontuarioNomeAnimal"></strong></div>' +
         '<form id="formProntuario" onsubmit="salvarProntuario(event)"><input type="hidden" id="prontuarioAnimalId">' +
-        '<h6 class="fw-bold mb-3">📏 Medidas</h6><div class="row g-3 mb-4">' +
-        '<div class="col-6"><label class="form-label">Peso (kg)</label><input type="number" class="form-control" id="prontuarioPeso" step="0.1"></div>' +
-        '<div class="col-6"><label class="form-label">Altura (cm)</label><input type="number" class="form-control" id="prontuarioAltura" step="0.1"></div></div>' +
+        '<h6 class="fw-bold mb-3">📏 Medidas Físicas</h6><div class="row g-3 mb-4">' +
+        '<div class="col-6"><label class="form-label">Peso (kg)</label><input type="number" class="form-control-glass" id="prontuarioPeso" step="0.1"></div>' +
+        '<div class="col-6"><label class="form-label">Altura (cm)</label><input type="number" class="form-control-glass" id="prontuarioAltura" step="0.1"></div></div>' +
         '<h6 class="fw-bold mb-3">🩺 Informações Médicas</h6>' +
-        '<div class="mb-3"><label class="form-label">Alergias</label><textarea class="form-control" id="prontuarioAlergias" rows="2"></textarea></div>' +
-        '<div class="mb-3"><label class="form-label">Medicamentos</label><textarea class="form-control" id="prontuarioMedicamentos" rows="2"></textarea></div>' +
-        '<div class="mb-3"><label class="form-label">Condições</label><textarea class="form-control" id="prontuarioCondicoes" rows="2"></textarea></div>' +
-        '<div class="mb-3"><label class="form-label">Observações</label><textarea class="form-control" id="prontuarioObservacoes" rows="3"></textarea></div>' +
-        '<button type="submit" class="btn btn-success w-100"><i class="bi bi-save me-2"></i>Salvar</button></form></div></div></div></div>' +
+        '<div class="mb-3"><label class="form-label">Alergias</label><textarea class="form-control-glass" id="prontuarioAlergias" rows="2"></textarea></div>' +
+        '<div class="mb-3"><label class="form-label">Medicamentos em Uso</label><textarea class="form-control-glass" id="prontuarioMedicamentos" rows="2"></textarea></div>' +
+        '<div class="mb-3"><label class="form-label">Condições Pré-existentes</label><textarea class="form-control-glass" id="prontuarioCondicoes" rows="2"></textarea></div>' +
+        '<div class="mb-3"><label class="form-label">Observações Gerais</label><textarea class="form-control-glass" id="prontuarioObservacoes" rows="3"></textarea></div>' +
+        '<button type="submit" class="btn btn-glass btn-success-glass w-100"><i class="bi bi-save me-2"></i>Salvar Prontuário</button></form></div></div></div></div>' +
         
+        '<!-- Modal Vacinas do Animal -->' +
         '<div class="modal fade" id="modalVacinasAnimal" tabindex="-1">' +
         '<div class="modal-dialog modal-lg"><div class="modal-content">' +
         '<div class="modal-header bg-gradient-success text-white">' +
-        '<h5 class="modal-title"><i class="bi bi-shield-check me-2"></i>Vacinas</h5>' +
+        '<h5 class="modal-title"><i class="bi bi-shield-check me-2"></i>Controle de Vacinas</h5>' +
         '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>' +
-        '<div class="modal-body"><div class="info-box"><strong id="vacinasNomeAnimal"></strong></div>' +
-        '<button onclick="abrirModalNovaVacina()" class="btn btn-primary w-100 mb-3"><i class="bi bi-plus-circle me-2"></i>Adicionar Vacina</button>' +
+        '<div class="modal-body"><div class="alert alert-success glass-alert"><strong id="vacinasNomeAnimal"></strong></div>' +
+        '<button onclick="abrirModalNovaVacina()" class="btn btn-glass btn-primary-glass w-100 mb-3"><i class="bi bi-plus-circle me-2"></i>Adicionar Nova Vacina</button>' +
         '<div id="listaVacinasAnimal"></div></div></div></div></div>' +
         
+        '<!-- Modal Nova Vacina -->' +
         '<div class="modal fade" id="modalNovaVacina" tabindex="-1">' +
         '<div class="modal-dialog"><div class="modal-content">' +
         '<div class="modal-header bg-gradient-success text-white">' +
-        '<h5 class="modal-title"><i class="bi bi-shield-plus me-2"></i>Registrar Vacina</h5>' +
+        '<h5 class="modal-title"><i class="bi bi-shield-plus me-2"></i>Registrar Nova Vacina</h5>' +
         '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>' +
         '<div class="modal-body"><form id="formNovaVacina" onsubmit="registrarVacina(event)">' +
         '<input type="hidden" id="vacinaAnimalId">' +
-        '<div class="mb-3"><label class="form-label">Nome da Vacina *</label><input type="text" class="form-control" id="vacinaNome" required></div>' +
+        '<div class="mb-3"><label class="form-label">Nome da Vacina *</label><input type="text" class="form-control-glass" id="vacinaNome" required placeholder="Ex: V10, Antirrábica..."></div>' +
         '<div class="row g-3 mb-3">' +
-        '<div class="col-6"><label class="form-label">Data Aplicação *</label><input type="date" class="form-control" id="vacinaData" required></div>' +
-        '<div class="col-6"><label class="form-label">Próxima Dose</label><input type="date" class="form-control" id="vacinaProximaDose"></div></div>' +
+        '<div class="col-6"><label class="form-label">Data Aplicação *</label><input type="date" class="form-control-glass" id="vacinaData" required></div>' +
+        '<div class="col-6"><label class="form-label">Próxima Dose</label><input type="date" class="form-control-glass" id="vacinaProximaDose"></div></div>' +
         '<div class="row g-3 mb-3">' +
-        '<div class="col-6"><label class="form-label">Lote</label><input type="text" class="form-control" id="vacinaLote"></div>' +
-        '<div class="col-6"><label class="form-label">Veterinário</label><input type="text" class="form-control" id="vacinaVeterinario"></div></div>' +
-        '<div class="mb-3"><label class="form-label">Observações</label><textarea class="form-control" id="vacinaObservacoes" rows="2"></textarea></div>' +
+        '<div class="col-6"><label class="form-label">Lote</label><input type="text" class="form-control-glass" id="vacinaLote" placeholder="Opcional"></div>' +
+        '<div class="col-6"><label class="form-label">Veterinário</label><input type="text" class="form-control-glass" id="vacinaVeterinario" placeholder="Opcional"></div></div>' +
+        '<div class="mb-3"><label class="form-label">Observações</label><textarea class="form-control-glass" id="vacinaObservacoes" rows="2" placeholder="Reações, recomendações..."></textarea></div>' +
         '<div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="vacinaCompleta">' +
-        '<label class="form-check-label" for="vacinaCompleta">Vacinação completa</label></div>' +
-        '<button type="submit" class="btn btn-success w-100"><i class="bi bi-check-circle me-2"></i>Registrar</button>' +
+        '<label class="form-check-label" for="vacinaCompleta">Vacinação completa (todas as doses aplicadas)</label></div>' +
+        '<button type="submit" class="btn btn-glass btn-success-glass w-100"><i class="bi bi-check-circle me-2"></i>Registrar Vacina</button>' +
         '</form></div></div></div></div>';
     
     document.getElementById('modalsContainer').innerHTML = modalsHTML;
-    console.log('✅ Modais criados');
+    console.log('✅ Modais criados com sucesso');
 }
 
-console.log('🐾 HealthPet JavaScript carregado!');
+console.log('🐾 SmartVet JavaScript carregado com sucesso!');
