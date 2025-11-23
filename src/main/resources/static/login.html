@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 SmartVet - Login</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS Customizado -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ea6666 0%, #ff7b00 50%, #9a55d3 100%);
+            opacity: 0.05;
+            z-index: -1;
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+        
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ea6666, #ff7b00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .login-form {
+            padding: 2.5rem;
+        }
+        
+        .form-floating {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .form-floating .form-control-glass {
+            padding: 1.5rem 1.2rem 0.5rem 1.2rem;
+            height: 58px;
+            background: var(--glass-bg);
+        }
+        
+        .form-floating label {
+            position: absolute;
+            top: 50%;
+            left: 1.2rem;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            background: transparent;
+            padding: 0 0.25rem;
+        }
+        
+        /* Quando o campo está com foco ou preenchido */
+        .form-floating .form-control-glass:focus ~ label,
+        .form-floating .form-control-glass:not(:placeholder-shown) ~ label {
+            top: 8px;
+            transform: translateY(0);
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* Garantir que o ícone fique visível */
+        .form-floating label i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Dark mode - labels muito mais visíveis */
+        body.dark-mode .form-floating label {
+            color: #cbd5e0;
+            font-weight: 500;
+        }
+        
+        body.dark-mode .form-floating .form-control-glass:focus ~ label,
+        body.dark-mode .form-floating .form-control-glass:not(:placeholder-shown) ~ label {
+            color: #ff7b00;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .remember-me label {
+            color: var(--text-primary);
+            cursor: pointer;
+            user-select: none;
+            font-weight: 500;
+        }
+        
+        /* Dark mode - checkbox label */
+        body.dark-mode .remember-me label {
+            color: #f1f5f9;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ea6666, #ff7b00);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(234, 102, 102, 0.3);
+            color: white;
+        }
+        
+        .btn-login:active {
+            transform: translateY(-1px);
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--glass-border);
+        }
+        
+        .divider span {
+            background: var(--bg-primary);
+            padding: 0 1rem;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        /* Dark mode - divider */
+        body.dark-mode .divider span {
+            color: #94a3b8;
+        }
+        
+        .login-links {
+            text-align: center;
+        }
+        
+        .login-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .login-link:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+        
+        /* Dark mode - melhor contraste para links */
+        body.dark-mode .login-link {
+            color: #ff7b00;
+        }
+        
+        body.dark-mode .login-link:hover {
+            color: #ea6666;
+        }
+        
+        body.dark-mode .login-links p {
+            color: #f1f5f9;
+        }
+        
+        .demo-credentials {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .demo-credentials h6 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Dark mode - título das credenciais demo */
+        body.dark-mode .demo-credentials h6 {
+            color: #f1f5f9;
+        }
+        
+        body.dark-mode .demo-credentials {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .demo-user {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .demo-user:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+            border-color: var(--primary);
+        }
+        
+        .demo-user p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .demo-user small {
+            color: var(--text-secondary);
+            display: block;
+            margin-top: 0.25rem;
+        }
+        
+        /* Dark mode - melhor contraste */
+        body.dark-mode .demo-user {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        body.dark-mode .demo-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        body.dark-mode .demo-user p {
+            color: #f1f5f9;
+        }
+        
+        body.dark-mode .demo-user small {
+            color: #94a3b8;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--primary);
+            transform: translateX(-5px);
+        }
+        
+        @media (max-width: 576px) {
+            .login-card {
+                margin: 1rem;
+            }
+            
+            .login-title {
+                font-size: 2rem;
+            }
+            
+            .login-icon {
+                font-size: 4rem;
+            }
+            
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+            }
+        }
+        
+        /* Dark mode - garantir legibilidade geral */
+        body.dark-mode {
+            color: #f1f5f9;
+        }
+        
+        body.dark-mode .login-subtitle {
+            color: #cbd5e0;
+        }
+        
+        body.dark-mode .form-control-glass {
+            color: #f1f5f9;
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(203, 213, 224, 0.2);
+        }
+        
+        body.dark-mode .form-control-glass:focus {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: #ff7b00;
+            color: #ffffff;
+        }
+        
+        body.dark-mode .form-control-glass::placeholder {
+            color: #64748b;
+        }
+        
+        /* Light mode - garantir visibilidade */
+        body:not(.dark-mode) .form-floating label {
+            color: #64748b;
+        }
+        
+        body:not(.dark-mode) .form-control-glass {
+            color: #1e293b;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* Alertas - melhor contraste */
+        .alert {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        body.dark-mode .alert-danger {
+            background: rgba(220, 53, 69, 0.15) !important;
+            color: #ff6b6b !important;
+            border: 2px solid rgba(220, 53, 69, 0.3) !important;
+        }
+        
+        body.dark-mode .alert-success {
+            background: rgba(40, 167, 69, 0.15) !important;
+            color: #51cf66 !important;
+            border: 2px solid rgba(40, 167, 69, 0.3) !important;
+        }
+        
+        body.dark-mode .alert-warning {
+            background: rgba(255, 193, 7, 0.15) !important;
+            color: #ffd43b !important;
+            border: 2px solid rgba(255, 193, 7, 0.3) !important;
+        }
+        
+        body.dark-mode .btn-close {
+            filter: brightness(2) invert(1);
+        }
+    </style>
+</head>
+<body>
+    <!-- DARK MODE TOGGLE -->
+    <button class="dark-mode-toggle" id="darkModeToggle" aria-label="Alternar modo escuro">
+        <i class="bi bi-moon-stars-fill"></i>
+    </button>
+
+    <!-- BACK BUTTON -->
+    <a href="landing.html" class="back-link">
+        <i class="bi bi-arrow-left"></i>
+        Voltar
+    </a>
+
+    <!-- LOGIN CONTAINER -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">🐾</div>
+                <h1 class="login-title">SmartVet</h1>
+                <p class="login-subtitle">Bem-vindo de volta!</p>
+            </div>
+
+            <div class="glass-card login-form">
+                <form id="loginForm" onsubmit="fazerLogin(event)">
+                    <div class="form-floating">
+                        <input type="email" class="form-control-glass" id="loginEmail" placeholder="email@exemplo.com" required>
+                        <label for="loginEmail">
+                            <i class="bi bi-envelope"></i>Email
+                        </label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="password" class="form-control-glass" id="loginSenha" placeholder="senha" required>
+                        <label for="loginSenha">
+                            <i class="bi bi-lock"></i>Senha
+                        </label>
+                    </div>
+
+                    <div class="remember-me">
+                        <input type="checkbox" id="lembrarMe">
+                        <label for="lembrarMe">Lembrar-me</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-login">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+                    </button>
+
+                    <div class="login-links">
+                        <a href="#" class="login-link" onclick="alert('Funcionalidade em desenvolvimento'); return false;">
+                            <i class="bi bi-key me-1"></i>Esqueci minha senha
+                        </a>
+                    </div>
+                </form>
+
+                <div class="divider">
+                    <span>ou</span>
+                </div>
+
+                <div class="login-links">
+                    <p class="mb-0">
+                        Não tem uma conta? 
+                        <a href="#" class="login-link" onclick="alert('Funcionalidade em desenvolvimento'); return false;">
+                            Criar conta
+                        </a>
+                    </p>
+                </div>
+
+                <!-- CREDENCIAIS DEMO -->
+                <div class="demo-credentials">
+                    <h6>
+                        <i class="bi bi-info-circle-fill"></i>
+                        Credenciais Demo
+                    </h6>
+                    
+                    <div class="demo-user" onclick="preencherCredenciais('admin@smartvet.com', 'admin123')">
+                        <p><strong>👨‍⚕️ Administrador</strong></p>
+                        <small>admin@smartvet.com / admin123</small>
+                    </div>
+
+                    <div class="demo-user" onclick="preencherCredenciais('vet@smartvet.com', 'vet123')">
+                        <p><strong>👩‍⚕️ Veterinário</strong></p>
+                        <small>vet@smartvet.com / vet123</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Auth JS -->
+    <script src="js/auth.js"></script>
+    
+    <script>
+        // Dark Mode Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const darkModeStorage = localStorage.getItem('darkMode');
+            
+            if (darkModeStorage === 'enabled') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+            }
+            
+            darkModeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                
+                if (document.body.classList.contains('dark-mode')) {
+                    localStorage.setItem('darkMode', 'enabled');
+                    darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                    darkModeToggle.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+                }
+            });
+
+            // Verificar se já está logado
+            verificarSeJaEstaLogado();
+        });
+
+        // Preencher credenciais demo
+        function preencherCredenciais(email, senha) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginSenha').value = senha;
+            document.getElementById('loginEmail').focus();
+        }
+    </script>
+</body>
+</html>

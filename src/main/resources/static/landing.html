@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 SmartVet - Sistema Veterinário Inteligente</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- CSS Customizado -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Estilos específicos da Landing Page */
+        .landing-hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .landing-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ea6666 0%, #ff7b00 50%, #9a55d3 100%);
+            opacity: 0.05;
+            z-index: -1;
+        }
+        
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ea6666, #ff7b00, #9a55d3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            animation: gradientFlow 3s ease infinite;
+            background-size: 200% auto;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+        
+        .hero-icon {
+            font-size: 8rem;
+            margin-bottom: 2rem;
+            animation: bounce 2s infinite;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        
+        .feature-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-cta {
+            padding: 1.2rem 3rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: all 0.4s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-cta-primary {
+            background: linear-gradient(135deg, #ea6666, #ff7b00);
+            color: white;
+            box-shadow: 0 10px 30px rgba(234, 102, 102, 0.3);
+        }
+        
+        .btn-cta-primary:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(234, 102, 102, 0.4);
+            color: white;
+        }
+        
+        .btn-cta-secondary {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            color: var(--text-primary);
+        }
+        
+        .btn-cta-secondary:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .stats-section {
+            margin: 6rem 0;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .stat-item {
+            padding: 2rem;
+        }
+        
+        .stat-number {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ea6666, #ff7b00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .floating-icons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: float-random 15s infinite;
+        }
+        
+        .floating-icon:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-icon:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+        
+        .floating-icon:nth-child(3) {
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        .floating-icon:nth-child(4) {
+            bottom: 25%;
+            right: 10%;
+            animation-delay: 6s;
+        }
+        
+        @keyframes float-random {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-30px) rotate(5deg);
+            }
+            50% {
+                transform: translateY(-60px) rotate(-5deg);
+            }
+            75% {
+                transform: translateY(-30px) rotate(3deg);
+            }
+        }
+        
+        @keyframes gradientFlow {
+            0%, 100% {
+                background-position: 0% center;
+            }
+            50% {
+                background-position: 100% center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.3rem;
+            }
+            
+            .hero-icon {
+                font-size: 5rem;
+            }
+            
+            .btn-cta {
+                padding: 1rem 2rem;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- DARK MODE TOGGLE -->
+    <button class="dark-mode-toggle" id="darkModeToggle" aria-label="Alternar modo escuro">
+        <i class="bi bi-moon-stars-fill"></i>
+    </button>
+
+    <!-- HERO SECTION -->
+    <section class="landing-hero">
+        <!-- Ícones Flutuantes -->
+        <div class="floating-icons">
+            <i class="bi bi-heart-pulse-fill floating-icon"></i>
+            <i class="bi bi-clipboard-heart floating-icon"></i>
+            <i class="bi bi-shield-fill-check floating-icon"></i>
+            <i class="bi bi-heart-fill floating-icon"></i>
+        </div>
+
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-icon">🐾</div>
+                <h1 class="hero-title">SmartVet</h1>
+                <p class="hero-subtitle">Sistema Veterinário Inteligente e Completo</p>
+                
+                <div class="cta-buttons">
+                    <a href="login.html" class="btn btn-cta btn-cta-primary">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Entrar no Sistema
+                    </a>
+                    <a href="#features" class="btn btn-cta btn-cta-secondary">
+                        <i class="bi bi-info-circle me-2"></i>Saiba Mais
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section id="features" class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold mb-3">Funcionalidades Completas</h2>
+            <p class="lead text-muted">Tudo que você precisa para gerenciar sua clínica veterinária</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">📋</span>
+                <h3 class="feature-title">Prontuários Digitais</h3>
+                <p class="feature-description">
+                    Registre histórico médico completo, medicamentos, alergias e condições pré-existentes de cada paciente.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">💉</span>
+                <h3 class="feature-title">Controle de Vacinas</h3>
+                <p class="feature-description">
+                    Gerencie cartão de vacinação, receba alertas de doses vencidas e próximas aplicações automaticamente.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🐕</span>
+                <h3 class="feature-title">Cadastro Completo</h3>
+                <p class="feature-description">
+                    Registre cachorros, gatos e outros animais com informações detalhadas de espécie, raça e características.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🔍</span>
+                <h3 class="feature-title">Busca Inteligente</h3>
+                <p class="feature-description">
+                    Encontre rapidamente qualquer animal por nome, ID ou características usando nosso sistema de busca avançado.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3 class="feature-title">Dashboard Completo</h3>
+                <p class="feature-description">
+                    Visualize estatísticas em tempo real, total de animais cadastrados e alertas importantes na tela inicial.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🌙</span>
+                <h3 class="feature-title">Dark Mode</h3>
+                <p class="feature-description">
+                    Interface moderna com modo escuro para maior conforto visual, com transições suaves e design elegante.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS SECTION -->
+    <section class="stats-section container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold mb-3">Sistema Confiável e Moderno</h2>
+            <p class="lead text-muted">Desenvolvido com as melhores tecnologias</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Responsivo</div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-number">⚡</div>
+                <div class="stat-label">Rápido</div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-number">🔒</div>
+                <div class="stat-label">Seguro</div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-number">💾</div>
+                <div class="stat-label">Backup Automático</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="container text-center py-5 mb-5">
+        <div class="glass-card p-5">
+            <h2 class="display-5 fw-bold mb-4">Pronto para começar?</h2>
+            <p class="lead mb-4">Transforme a gestão da sua clínica veterinária hoje mesmo</p>
+            <a href="login.html" class="btn btn-cta btn-cta-primary">
+                <i class="bi bi-rocket-takeoff me-2"></i>Começar Agora
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 border-top">
+        <div class="container">
+            <p class="text-muted mb-2">
+                <i class="bi bi-heart-fill text-danger"></i> Feito com amor para veterinários
+            </p>
+            <p class="text-muted small">
+                SmartVet © 2024 - Sistema Veterinário Inteligente
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Dark Mode Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const darkModeStorage = localStorage.getItem('darkMode');
+            
+            if (darkModeStorage === 'enabled') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+            }
+            
+            darkModeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                
+                if (document.body.classList.contains('dark-mode')) {
+                    localStorage.setItem('darkMode', 'enabled');
+                    darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                    darkModeToggle.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+                }
+            });
+
+            // Smooth scroll para âncoras
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -223,7 +223,7 @@ Bloqueio automático para evitar acesso sem login.
 ================================================================================
 
 1. Clonar o repositório  
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+git clone https://github.com/FelpBrit/SmartVet.git
 
 2. Abrir no VS Code
 
