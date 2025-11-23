@@ -5,7 +5,7 @@
 Projeto Integrador – Sistemas de Informação  
 Desenvolvido em Java Spring Boot com frontend web moderno  
 Banco de dados: H2 Database  
-Versão: 1.0  
+Versão: 2.0  
 Autor: Felipe Brito dos Santos Rocha  
 Ano: 2025
 
@@ -13,256 +13,270 @@ Ano: 2025
                               DESCRIÇÃO DO PROJETO
 ================================================================================
 
-O **SmartVet** é um sistema web desenvolvido para auxiliar clínicas veterinárias no
-gerenciamento de animais, prontuários e registros de vacinação, oferecendo uma
-interface moderna, responsiva e preparada com **Dark Mode**.
+O **SmartVet** é um sistema web desenvolvido para demonstrar, de forma clara e 
+profissional, o funcionamento de um sistema de gerenciamento de clínica 
+veterinária. Ele reúne organização estrutural de backend em **Spring Boot**, banco 
+de dados **H2**, interface moderna com **Bootstrap**, além de funcionalidades como 
+cadastro de animais, prontuários, vacinas e um completo modo escuro.
 
-O projeto foi construído utilizando **Spring Boot**, **H2 Database**, **HTML**, **CSS**,
-**JavaScript** e **Bootstrap**, seguindo o padrão MVC, com organização modular e
-separação clara entre controller, service, repository e model.
+Nesta nova versão, o sistema foi expandido com:
 
-O objetivo principal do SmartVet é fornecer um sistema leve, rápido e fácil de
-usar dentro de clínicas veterinárias, permitindo:
+- **Landing Page**
+- **Tela de Login**
+- **Sistema de autenticação via JavaScript (LocalStorage)**
+- **Proteção de páginas internas**
 
-- 📌 Cadastro de Animais  
-- 📌 Registro de Prontuários  
-- 📌 Gerenciamento de Vacinas  
-- 📌 Interface moderna com suporte a Dark Mode  
-- 📌 Acesso rápido e responsivo via navegador  
+Essas adições simulam o fluxo real de um sistema comercial, mantendo a simplicidade 
+necessária para ambientes acadêmicos e protótipos.
+
+O SmartVet segue o padrão **MVC**, com separação organizada entre:  
+Controller • Service • Repository • Model • Views
 
 ================================================================================
                        ARQUITETURA E ESTRUTURA DO SISTEMA
 ================================================================================
 
-O SmartVet segue a estrutura clássica de um projeto Spring Boot:
+📁 **Backend – Spring Boot (Java 17)**  
+- Controllers (Animal, Vacina, Prontuário)  
+- Services  
+- Repositories (Spring Data JPA)  
+- Models (Entidades)  
+- Enums  
+- Exception handlers  
+- Aplicação principal  
 
-📁 **src/main/java/com/healthpet/veterinaria**
-- controller/  
-- service/  
-- repository/  
-- model/  
-- enums/  
-- exception/  
-- VeterinariaApplication.java  
-
-📁 **src/main/resources**
-- static/  
-  - css/style.css  
-  - js/app.js  
-  - index.html  
-- application.properties  
-
-📁 **Banco de dados**
-- H2 Database (memória ou arquivo .mv.db)
-- Console disponível em:  
-  http://localhost:8080/h2-console
-
-================================================================================
-                         TECNOLOGIAS E FERRAMENTAS USADAS
-================================================================================
-
-✓ **Backend:**  
-- Java 17  
-- Spring Boot 3.x  
-- Spring Data JPA  
-- H2 Database  
-- Hibernate ORM  
-- Maven  
-
-✓ **Frontend:**  
-- HTML5  
-- CSS3 (customização + dark mode)  
-- JavaScript  
+📁 **Frontend – Páginas e Recursos**  
+- **landing.html** (Novo)  
+- **login.html** (Novo)  
+- **auth.js** (Novo — autenticação)  
+- index.html e páginas internas  
+- CSS customizado (incluindo Dark Mode)  
 - Bootstrap 5  
+- JavaScript geral (app.js)
 
-✓ **Ferramentas:**  
-- VS Code  
-- Git e GitHub  
-- H2 Console  
-- Postman (testes opcionais)
+📁 **Banco de Dados**
+- H2 Database (memória)
+- Console acessível via navegador
 
 ================================================================================
                            FUNCIONALIDADES PRINCIPAIS
 ================================================================================
 
-1. **Cadastro de Animais**  
-   - Nome, espécie, idade, raça, pelagem e temperamento  
-   - Validação automática  
-   - Armazenamento no banco H2 via JPA  
+### 🐾 1. Cadastro de Animais  
+O sistema permite:
 
-2. **Gerenciamento de Vacinas**  
-   - Cadastro de tipos de vacinas  
-   - Datas de aplicação  
-   - Controle de doses  
+- Inserir animais com nome, idade, espécie, pelagem, temperamento, raça e outros dados  
+- Editar e excluir registros  
+- Visualizar lista de todos os animais cadastrados  
 
-3. **Prontuários Veterinários**  
-   - Registro de consultas  
-   - Observações médicas  
-   - Associação ao animal  
+Dados persistidos automaticamente no H2 via JPA.
 
-4. **Dark Mode**  
-   - Ativado via JavaScript  
-   - Personalização global via CSS e variáveis  
-   - Efeito glassmorphism  
+---
 
-5. **Interface Responsiva**  
-   - Utilizando Bootstrap  
-   - Layout adaptado para mobile, tablet e desktop  
+### 📁 2. Prontuários Veterinários  
+O prontuário permite:
 
-================================================================================
-                               DETALHAMENTO TÉCNICO
-================================================================================
+- Registrar consultas e observações  
+- Associar diretamente ao animal  
+- Acompanhar histórico clínico básico  
 
-📌 **Spring Boot – Controllers**  
-Cada funcionalidade possui um controller dedicado:
+---
 
-- AnimalController  
-- VacinaController  
-- ProntuarioController  
+### 💉 3. Controle de Vacinas  
+Cadastro e gerenciamento de vacinas aplicadas, contendo:
 
-Todos seguem o padrão REST, utilizando:
+- Tipo de vacina  
+- Datas  
+- Associações com o animal correspondente  
 
-- @GetMapping  
-- @PostMapping  
-- @PutMapping  
-- @DeleteMapping  
+---
 
-📌 **Service Layer**  
-Implementa as regras de negócio:
+### 🌙 4. Dark Mode  
+Tema escuro completo com:
 
-- Processamento de dados  
-- Validação  
-- Tratamento de exceções  
+- Variáveis CSS  
+- Alternância dinâmica  
+- Interface moderna e confortável  
 
-📌 **Repository Layer**  
-Camada de persistência usando Spring Data JPA:
+---
 
-- findAll()  
-- findById()  
-- save()  
-- deleteById()  
-
-📌 **Model Layer**  
-Entidades do sistema:
-
-- Animal  
-- Prontuario  
-- Vacina  
-
-Incluem construtores, getters/setters e validações.
-
-================================================================================
-                               BANCO DE DADOS H2
-================================================================================
-
-O projeto utiliza H2 Database, permitindo rodar sem instalação externa.
-
-Acesso ao console:
-http://localhost:8080/h2-console
-
-Configuração padrão:
-jdbc:h2:mem:testdb
-user: sa
-password:
-
-
-O banco é criado automaticamente pelas entidades JPA.
-
-================================================================================
-                      INTERFACE FRONTEND E EXPERIÊNCIA DO USUÁRIO
-================================================================================
-
-📌 **Bootstrap 5**  
-Utilizado para:
+### 📱 5. Responsividade  
+Utilizando Bootstrap 5 para:
 
 - Grid responsivo  
-- Cards e containers  
-- Modais e botões  
+- Layout adaptado para mobile, tablet e desktop  
+- Componentes modernos como cards, botões, containers e modais  
 
-📌 **Dark Mode**  
-Implementado via:
+---
 
-- Classe `.dark`  
-- Variáveis CSS  
-- Função JS responsiva  
+## ⭐ **NOVAS FUNCIONALIDADES ADICIONADAS**
 
-📌 **CSS Personalizado**  
-Inclui:
-
-- Glassmorphism  
-- Animações suaves  
-- Layout moderno  
-
-📌 **index.html**  
+### 🎨 6. Landing Page (Novo)
 Página inicial com:
 
-- Navegação  
-- Cards de funcionalidades  
-- Área central de conteúdo  
+- Identidade visual  
+- Botão de login  
+- Layout leve e convidativo  
+
+---
+
+### 🔐 7. Sistema de Login (Novo – 100% Front-End)
+Implementado para demonstração utilizando:
+
+- **JavaScript + LocalStorage**  
+- Sem backend ou tabela de usuários (fluxo simplificado)  
+
+Permite:
+
+- Acesso apenas a usuários autenticados  
+- Redirecionamento automático  
+- Logout com limpeza de sessão  
+
+---
+
+### 🧭 8. Proteção das Páginas Internas (Novo)
+Cada página interna verifica:
+
+if (!localStorage.getItem("user")) {
+window.location.href = "login.html";
+}
+
+Impedindo acesso não autorizado.
+
+---
+
+### 📌 9. auth.js (Novo)
+Arquivo responsável por:
+
+- Validar usuário e senha fixos (ex.: admin/admin)  
+- Armazenar o usuário no LocalStorage  
+- Redirecionar após login  
+- Aplicar logout  
+- Bloquear páginas internas quando não autenticado  
+
+---
 
 ================================================================================
-                       INSTRUÇÕES DE INSTALAÇÃO E EXECUÇÃO
+                           TECNOLOGIAS UTILIZADAS
 ================================================================================
 
-1. Baixar ou clonar o repositório:
-git clone https://github.com/FelpBrit/SmartVet.git
+ 🔧 **Backend**
+- Java 17  
+- Spring Boot 3.x  
+- Spring Data JPA  
+- Hibernate  
+- Maven  
 
-2. Abrir no VS Code ou IntelliJ
+🎨 **Frontend**
+- HTML5  
+- CSS3  
+- Bootstrap 5  
+- JavaScript  
+- Dark Mode personalizado  
+- Autenticação via LocalStorage  
 
-3. Rodar o projeto com Maven:
+🗄 **Banco**
+- H2 Database  
+- Console SQL integrado
+
+Ferramentas adicionais:  
+- VS Code  
+- Git e GitHub  
+
+================================================================================
+                   FUNCIONALIDADES DETALHADAS (POR MÓDULO)
+================================================================================
+
+### 🐶 Cadastro de Animais  
+- CRUD completo  
+- Persistência via JPA  
+- Listagem responsiva  
+
+### 📝 Prontuários  
+- Registro de consultas  
+- Observações gerais  
+- Associação direta ao animal  
+
+### 💉 Vacinas  
+- Cadastro de vacinas  
+- Datas e tipos  
+- Gerenciamento independente  
+
+### 🌙 Dark Mode  
+- Tema claro/escuro  
+- Alternância instantânea  
+- CSS modular  
+
+### 🔐 Sistema de Login (Novo)  
+Fluxo simulado, ideal para protótipos:
+
+Usuário → login.html
+→ Validação (JS/localStorage)
+→ index.html (se logado)
+→ Logout → limpeza da sessão
+
+### 🧭 Proteção de Rotas (Novo)
+Bloqueio automático para evitar acesso sem login.
+
+================================================================================
+                         INSTRUÇÕES DE INSTALAÇÃO
+================================================================================
+
+1. Clonar o repositório  
+git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+
+2. Abrir no VS Code
+
+3. Rodar backend:
 mvn spring-boot:run
 
-4. Acessar no navegador:
-http://localhost:8080
+4. Acessar a Landing:
+http://localhost:8080/landing.html
 
-5. Acessar o console do H2 se necessário:
+5. Login → redirecionado para área interna
+
+6. Console do H2:
 http://localhost:8080/h2-console
 
-
 ================================================================================
-                 TROUBLESHOOTING (SOLUÇÃO DE PROBLEMAS)
+                               TROUBLESHOOTING
 ================================================================================
 
-❗ **CSS/JS não carregam**  
-- Limpar cache do navegador  
-- Verificar pasta /static  
+⚠ Página interna abre sem login  
+→ Verifique o script de verificação de sessão
 
-❗ **Erro 404 nas rotas**  
-- Verifique se o servidor está executando  
-- Rotas REST não substituem as páginas HTML  
+⚠ Login não funciona  
+→ Confira se auth.js está sendo carregado  
+→ Verifique o LocalStorage do navegador  
 
-❗ **H2 não abre**  
-- Certifique-se que o console está habilitado no application.properties  
+⚠ Bootstrap não carrega  
+→ Confirme os caminhos na pasta /static  
 
-❗ **Erro de CORS (caso teste via Postman)**  
-- Configurar WebConfig (se necessário)
+⚠ Erro no H2  
+→ Verifique a URL em application.properties  
 
 ================================================================================
                                   LICENÇA
 ================================================================================
 
-Este projeto está licenciado sob a **MIT License**.  
-Permite uso, modificação e distribuição livre mediante citação do autor.
+Licença **MIT**. Livre para uso e modificações, com crédito ao autor.
 
 ================================================================================
                                    AUTOR
 ================================================================================
 
 **Felipe Brito dos Santos Rocha**  
-Desenvolvedor do projeto SmartVet  
-GitHub: *adicione seu link aqui*  
+Desenvolvedor do SmartVet  
 
 ================================================================================
                                AGRADECIMENTOS
 ================================================================================
 
-- Professores e orientadores  
-- Colegas que auxiliaram no desenvolvimento  
-- Comunidade Java/Spring Boot  
-- Ferramentas open-source utilizadas  
+- Professores envolvidos  
+- Colegas de curso  
+- Comunidade de desenvolvimento Java e web  
+- Projeto criado para fins acadêmicos  
 
 ================================================================================
                                      FIM
 ================================================================================
-
-
