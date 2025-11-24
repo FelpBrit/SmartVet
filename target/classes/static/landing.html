@@ -156,33 +156,62 @@
         }
         
         .stats-section {
-            margin: 6rem 0;
+            width: 100%;
+            padding: 6rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stats-content {
+            width: 100%;
+            max-width: 100%;
             text-align: center;
         }
         
+        .stats-content .text-center {
+            margin-bottom: 4rem;
+        }
+        
+        .stats-content h2,
+        .stats-content p {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .stat-item {
-            padding: 2rem;
+            text-align: center;
+            flex: 0 0 auto;
+            width: 200px;
+            padding: 1rem 0;
         }
         
         .stat-number {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: 900;
             background: linear-gradient(135deg, #ea6666, #ff7b00);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            padding: 0.2rem 0;
+            display: inline-block;
         }
         
         .stat-label {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: var(--text-secondary);
             font-weight: 600;
         }
@@ -268,6 +297,49 @@
             .btn-cta {
                 padding: 1rem 2rem;
                 font-size: 1.1rem;
+            }
+            
+            .stats-section {
+                padding: 4rem 1.5rem;
+            }
+            
+            .stats-content .text-center {
+                margin-bottom: 3rem;
+            }
+            
+            .stats-grid {
+                gap: 2.5rem;
+                max-width: 100%;
+            }
+            
+            .stat-item {
+                width: 140px;
+            }
+            
+            .stat-number {
+                font-size: 3.5rem;
+            }
+            
+            .stat-label {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                gap: 2rem;
+            }
+            
+            .stat-item {
+                width: 120px;
+            }
+            
+            .stat-number {
+                font-size: 3rem;
+            }
+            
+            .stat-label {
+                font-size: 1rem;
             }
         }
     </style>
@@ -366,30 +438,32 @@
 
     <!-- STATS SECTION -->
     <section class="stats-section container">
-        <div class="text-center mb-5">
-            <h2 class="display-4 fw-bold mb-3">Sistema Confiável e Moderno</h2>
-            <p class="lead text-muted">Desenvolvido com as melhores tecnologias</p>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-number">100%</div>
-                <div class="stat-label">Responsivo</div>
+        <div class="stats-content">
+            <div class="text-center mb-5">
+                <h2 class="display-4 fw-bold mb-3">Sistema Confiável e Moderno</h2>
+                <p class="lead text-muted"><i>Desenvolvido com as melhores tecnologias</i></p>
             </div>
 
-            <div class="stat-item">
-                <div class="stat-number">⚡</div>
-                <div class="stat-label">Rápido</div>
-            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Responsivo</div>
+                </div>
 
-            <div class="stat-item">
-                <div class="stat-number">🔒</div>
-                <div class="stat-label">Seguro</div>
-            </div>
+                <div class="stat-item">
+                    <div class="stat-number">⚡</div>
+                    <div class="stat-label">Rápido</div>
+                </div>
 
-            <div class="stat-item">
-                <div class="stat-number">💾</div>
-                <div class="stat-label">Backup Automático</div>
+                <div class="stat-item">
+                    <div class="stat-number">🔒</div>
+                    <div class="stat-label">Seguro</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-number">💾</div>
+                    <div class="stat-label">Backup Automático</div>
+                </div>
             </div>
         </div>
     </section>
@@ -412,7 +486,7 @@
                 <i class="bi bi-heart-fill text-danger"></i> Feito com amor para veterinários
             </p>
             <p class="text-muted small">
-                SmartVet © 2024 - Sistema Veterinário Inteligente
+                SmartVet © 2025 - Sistema Veterinário Inteligente
             </p>
         </div>
     </footer>

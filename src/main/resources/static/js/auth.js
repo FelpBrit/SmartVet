@@ -59,7 +59,7 @@ function fazerLogin(event) {
         
         // Redirecionar para o dashboard
         setTimeout(function() {
-            window.location.href = 'index.html';
+            window.location.href = 'dashboard.html';
         }, 1000);
         
     } else {
@@ -116,7 +116,7 @@ function verificarSeJaEstaLogado() {
         
         // Se estiver na página de login, redirecionar
         if (window.location.pathname.includes('login.html')) {
-            window.location.href = 'index.html';
+            window.location.href = 'dashboard.html';
         }
     }
 }

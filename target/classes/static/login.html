@@ -316,11 +316,21 @@
             align-items: center;
             gap: 0.5rem;
             transition: all 0.3s ease;
+            z-index: 100;
         }
         
         .back-link:hover {
             color: var(--primary);
             transform: translateX(-5px);
+        }
+        
+        /* Dark mode - botão voltar */
+        body.dark-mode .back-link {
+            color: #f1f5f9;
+        }
+        
+        body.dark-mode .back-link:hover {
+            color: #ff7b00;
         }
         
         @media (max-width: 576px) {
