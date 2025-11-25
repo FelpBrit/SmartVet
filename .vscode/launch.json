@@ -9,6 +9,16 @@
             "projectName": "sistema-veterinaria",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-VeterinariaApplication<sistema-veterinaria>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.SmartVet.veterinaria.VeterinariaApplication",
+            "projectName": "sistema-veterinaria",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
